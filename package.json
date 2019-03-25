@@ -2,11 +2,12 @@
   "name": "final-project-web",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://villith.github.io/",
+  "homepage": "http://magic-conch-shell.github.io/conch-web",
   "dependencies": {
     "@material-ui/core": "^3.9.2",
     "@material-ui/icons": "^3.0.2",
     "axios": "^0.18.0",
+    "downshift": "^3.2.7",
     "react": "^16.8.4",
     "react-dom": "^16.8.4",
     "react-pose": "^4.0.8",

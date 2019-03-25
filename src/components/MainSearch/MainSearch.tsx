@@ -1,18 +1,18 @@
 import {
-  IconButton,
   StyleRulesCallback,
   Theme,
   WithStyles,
   withStyles,
 } from '@material-ui/core';
-import {
-  AddCircleOutline as AddIcon,
-  RemoveCircleOutline as RemoveIcon,
-} from '@material-ui/icons';
-import classnames from 'classnames';
 import * as React from 'react';
+import posed from 'react-pose';
 import { RouteComponentProps, withRouter } from 'react-router-dom';
-import TextareaAutosize from 'react-textarea-autosize';
+
+import MainSearchInput from './MainSearchInput';
+import MainSearchSelect from './MainSearchSelect';
+import MainSearchTitle from './MainSearchTitle';
+import InputContainer from '../Input/InputContainer';
+import MainSearchTagContainer from './MainSearchTagContainer';
 
 export interface IMainSearchProps extends RouteComponentProps, WithStyles {
   placeholder?: string;
@@ -20,8 +20,6 @@ export interface IMainSearchProps extends RouteComponentProps, WithStyles {
 
 export interface IMainSearchState {
   state: InputState;
-  questionText: string;
-  titleText: string;
   selectedTags: number[];
   tags: Array<{ id: number; label: string }>;
 }
@@ -31,16 +29,27 @@ enum InputState {
   EXPANDED,
 }
 
-const rowCounts: { [key in InputState]: { min: number; max: number } } = {
-  [InputState.DEFAULT]: {
-    min: 1,
-    max: 1,
+const OpacityContainer = posed.div({
+  hidden: { opacity: 0 },
+  visible: { opacity: 1 },
+});
+
+const HeightContainer = posed.div({
+  default: {
+    height: '50px',
+    transition: {
+      duration: 300,
+      ease: 'easeOut',
+    },
   },
-  [InputState.EXPANDED]: {
-    min: 8,
-    max: 20,
+  expanded: {
+    height: '155px',
+    transition: {
+      type: 'spring',
+      stiffness: 150,
+    },
   },
-};
+});
 
 export type InputStates = 'default' | 'expanded';
 
@@ -49,43 +58,12 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
     width: '100%',
     height: '100%',
   },
-  input: {
-    backgroundColor: 'transparent',
-    border: 'none',
-    paddingTop: '16.5px',
-    paddingBottom: '16.5px',
-    color: 'rgba(0,0,0,.87)',
-    wordWrap: 'break-word',
-    outline: 'none',
-    resize: 'none',
-    width: 'calc(100% - 24px)',
-    fontFamily: 'monospace',
-  },
-  inputContainer: {
-    backgroundColor: '#fff',
-    display: 'flex',
-    border: '1px solid #dfe1e5',
-    boxShadow: 'none',
-    borderRadius: '24px',
-    zIndex: 3,
-    margin: '0 auto',
-  },
-  inputTitle: {
-    marginBottom: theme.spacing.unit * 2,
-  },
-  inputIcon: {
-    '&:hover': {
-      backgroundColor: 'rgba(0,0,0,0)',
-    },
-  },
-  inputElementsContainer: {
-    display: 'flex',
+  tagSelect: {
     width: '100%',
+    backgroundColor: 'white',
   },
-  inputPadding: {
-    flex: 1,
-    display: 'flex',
-    paddingLeft: '20px',
+  selectPadding: {
+    paddingRight: '12px',
   },
   link: {
     textDecoration: 'none',
@@ -99,27 +77,32 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
     borderRadius: '0px',
     letterSpacing: 2,
   },
+  selectedTagsContainer: {
+    width: '100%',
+    display: 'flex',
+    flexWrap: 'wrap',
+  },
 });
 
 class MainSearch extends React.Component<IMainSearchProps, IMainSearchState> {
-  public questionTextInput: HTMLTextAreaElement | null;
+  public heightRef: React.RefObject<any>;
+
   constructor(props: IMainSearchProps) {
     super(props);
     this.state = {
       state: InputState.DEFAULT,
-      questionText: '',
-      titleText: '',
       selectedTags: [] as number[],
       tags: [] as Array<{ id: number; label: string }>,
     };
-    this.questionTextInput = null;
+    this.heightRef = React.createRef();
   }
 
   public componentDidMount() {
-    if (this.questionTextInput) {
-      this.questionTextInput.focus();
-    }
+    const tags = require('../../constants/tags.json');
+
+    this.setState({ tags });
   }
+
   public handleSubmit = (ev: any) => {
     ev.preventDefault();
     console.log('Submit!');
@@ -129,60 +112,63 @@ class MainSearch extends React.Component<IMainSearchProps, IMainSearchState> {
     this.setState((prevState) => ({ state: 1 - prevState.state }));
   };
 
-  public updateQuestionTextField = (ev: any) => {
-    this.setState({ questionText: ev.currentTarget.value });
+  public setHeightRef = () => {
+    this.heightRef.current.style.height = 'auto';
   };
 
-  public updateTitleTextField = (ev: any) => {
-    this.setState({ titleText: ev.currentTarget.value });
+  public handleSelectTag = (tagId: number) => {
+    this.setState({
+      selectedTags: [...this.state.selectedTags, tagId],
+    });
   };
+  public handleDelete = (sid: number) => {
+    const selectedTags = [...this.state.selectedTags];
+    selectedTags.splice(selectedTags.indexOf(sid), 1);
+    this.setState({ selectedTags });
+  };
+
   public render() {
-    const { state, questionText, titleText } = this.state;
+    const { selectedTags, state, tags } = this.state;
     const { classes } = this.props;
     return (
       <form className={classes.form} onSubmit={(ev) => this.handleSubmit(ev)}>
-        {state === InputState.EXPANDED && (
-          <div
-            className={classnames(classes.inputContainer, classes.inputTitle)}
-          >
-            <div className={classes.inputPadding}>
-              <input
-                className={classes.input}
-                type="text"
-                value={titleText}
-                onChange={this.updateTitleTextField}
-                placeholder="Enter a title (optional)"
-              />
-            </div>
-          </div>
-        )}
-        <div className={classes.inputContainer}>
-          <div className={classes.inputPadding}>
-            <div className={classes.inputElementsContainer}>
-              <TextareaAutosize
-                className={classes.input}
-                inputRef={(inputRef: HTMLTextAreaElement) =>
-                  (this.questionTextInput = inputRef)
-                }
-                minRows={rowCounts[state].min}
-                maxRows={rowCounts[state].max}
-                name="question"
-                placeholder="Ask a Question"
-                value={questionText}
-                onChange={this.updateQuestionTextField}
-                autoFocus={true}
-                required={true}
-              />
-              <IconButton
-                className={classes.inputIcon}
-                onClick={this.toggleInputState}
-              >
-                {state === InputState.DEFAULT && <AddIcon />}
-                {state === InputState.EXPANDED && <RemoveIcon />}
-              </IconButton>
-            </div>
-          </div>
+        <OpacityContainer
+          pose={state === InputState.EXPANDED ? 'visible' : 'hidden'}
+        >
+          {state === InputState.EXPANDED && (
+            <InputContainer>
+              <MainSearchTitle />
+            </InputContainer>
+          )}
+        </OpacityContainer>
+        <HeightContainer
+          ref={this.heightRef}
+          onPoseComplete={() => {
+            this.setHeightRef();
+          }}
+          pose={state === InputState.EXPANDED ? 'expanded' : 'default'}
+        >
+          <InputContainer>
+            <MainSearchInput
+              inputState={state}
+              toggleInputState={this.toggleInputState}
+            />
+          </InputContainer>
+        </HeightContainer>
+        <div style={{ height: '50px' }}>
+          <InputContainer>
+            <MainSearchSelect
+              handleSelectTag={this.handleSelectTag}
+              selectedTags={selectedTags}
+              tags={tags}
+            />
+          </InputContainer>
         </div>
+        <MainSearchTagContainer
+          handleDeleteTag={this.handleDelete}
+          selectedTags={selectedTags}
+          tags={tags}
+        />
         <button type="submit" style={{ display: 'none' }} />
       </form>
     );

@@ -5,13 +5,18 @@ import {
   Toolbar,
   WithStyles,
   withStyles,
+  IconButton,
 } from '@material-ui/core';
+import { FlashOn, FlashOff } from '@material-ui/icons';
 import classNames from 'classnames';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
+import { ThemeTypes } from '../AppContainer/AppContainer';
 
 export interface INavBarProps {
   isTransparent: boolean;
+  theme: ThemeTypes;
+  toggleTheme: () => void;
 }
 
 export interface INavBarState {
@@ -44,7 +49,7 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
     boxShadow: 'none',
   },
   appBarLogo: {
-    height: '48px',
+    height: '64px',
   },
   root: {
     height: '90px',
@@ -71,6 +76,12 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
   addressLabel: {
     textAlign: 'right',
   },
+  lightIcon: {
+    color: theme.palette.primary.main,
+  },
+  darkIcon: {
+    color: theme.palette.text.primary,
+  },
 });
 
 class NavBar extends React.Component<
@@ -78,8 +89,8 @@ class NavBar extends React.Component<
   INavBarState
 > {
   public render() {
-    const { classes, isTransparent } = this.props;
-    const logoColor = isTransparent ? 'black' : 'white';
+    const { classes, isTransparent, theme, toggleTheme } = this.props;
+    const logoColor = theme === ThemeTypes.LIGHT ? 'purple' : 'white';
     return (
       <div className={classes.root}>
         <AppBar
@@ -93,10 +104,18 @@ class NavBar extends React.Component<
             <Link to="/">
               <img
                 className={classes.appBarLogo}
-                src={`https://s3.ca-central-1.amazonaws.com/jointable/logo_${logoColor}.png`}
+                src={`https://s3.ca-central-1.amazonaws.com/conch-resources/conch_logo_${logoColor}.png`}
               />
             </Link>
             <div className={classes.marginLeftAuto}>
+              <IconButton onClick={toggleTheme}>
+                {theme === ThemeTypes.LIGHT && (
+                  <FlashOn className={classes.lightIcon} />
+                )}
+                {theme === ThemeTypes.DARK && (
+                  <FlashOff className={classes.darkIcon} />
+                )}
+              </IconButton>
               <div className={classes.actions}>{this.props.children}</div>
             </div>
           </Toolbar>

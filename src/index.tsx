@@ -1,10 +1,12 @@
+import './index.css';
+
+import axios from 'axios';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import axios from 'axios';
-import './index.css';
-import App from './components/App/App';
-import * as serviceWorker from './serviceWorker';
 import { BrowserRouter, HashRouter } from 'react-router-dom';
+
+import AppContainer from './components/AppContainer/AppContainer';
+import * as serviceWorker from './serviceWorker';
 
 axios.defaults.headers.common.Authorization = 'AUTH TOKEN';
 axios.defaults.headers.post['Content-Type'] = 'application/json';
@@ -37,13 +39,13 @@ axios.interceptors.response.use(
 
 const devApp = (
   <BrowserRouter>
-    <App />
+    <AppContainer />
   </BrowserRouter>
 );
 
 const prodApp = (
   <HashRouter>
-    <App />
+    <AppContainer />
   </HashRouter>
 );
 

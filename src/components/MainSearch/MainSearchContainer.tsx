@@ -21,9 +21,6 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
     margin: 'auto',
     display: 'flex',
     width: '40%',
-    height: 'auto',
-    borderRadius: '7.5px',
-    overflow: 'hidden',
   },
 });
 

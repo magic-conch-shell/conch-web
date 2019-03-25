@@ -1,13 +1,13 @@
 {
-  "main.css": "/static/css/main.5c80e58e.chunk.css",
-  "main.js": "/static/js/main.ee0d0a0a.chunk.js",
-  "main.js.map": "/static/js/main.ee0d0a0a.chunk.js.map",
-  "runtime~main.js": "/static/js/runtime~main.a8a9905a.js",
-  "runtime~main.js.map": "/static/js/runtime~main.a8a9905a.js.map",
-  "static/js/2.eb4d32b1.chunk.js": "/static/js/2.eb4d32b1.chunk.js",
-  "static/js/2.eb4d32b1.chunk.js.map": "/static/js/2.eb4d32b1.chunk.js.map",
-  "index.html": "/index.html",
-  "precache-manifest.b41accb3f9b49082a00cff3309fdbea6.js": "/precache-manifest.b41accb3f9b49082a00cff3309fdbea6.js",
-  "service-worker.js": "/service-worker.js",
-  "static/css/main.5c80e58e.chunk.css.map": "/static/css/main.5c80e58e.chunk.css.map"
+  "main.css": "/conch-web/static/css/main.5c80e58e.chunk.css",
+  "main.js": "/conch-web/static/js/main.c1cd591c.chunk.js",
+  "main.js.map": "/conch-web/static/js/main.c1cd591c.chunk.js.map",
+  "runtime~main.js": "/conch-web/static/js/runtime~main.ca239acc.js",
+  "runtime~main.js.map": "/conch-web/static/js/runtime~main.ca239acc.js.map",
+  "static/js/2.eb4d32b1.chunk.js": "/conch-web/static/js/2.eb4d32b1.chunk.js",
+  "static/js/2.eb4d32b1.chunk.js.map": "/conch-web/static/js/2.eb4d32b1.chunk.js.map",
+  "index.html": "/conch-web/index.html",
+  "precache-manifest.1d15cda9958d248a7308a6568bd7f5f7.js": "/conch-web/precache-manifest.1d15cda9958d248a7308a6568bd7f5f7.js",
+  "service-worker.js": "/conch-web/service-worker.js",
+  "static/css/main.5c80e58e.chunk.css.map": "/conch-web/static/css/main.5c80e58e.chunk.css.map"
 }

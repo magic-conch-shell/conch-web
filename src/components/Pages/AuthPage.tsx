@@ -6,13 +6,15 @@ import {
   Grid,
 } from '@material-ui/core';
 import * as React from 'react';
-import MainSearchContainer from '../MainSearch/MainSearchContainer';
+import AuthContainer from '../Auth/AuthContainer';
+import { IUser } from '../../interfaces/User';
 
-export interface IMainPageProps {
+export interface IAuthPageProps extends WithStyles<typeof styles> {
   handleFinishLoading: () => void;
+  handleSignIn: (user: IUser) => void;
 }
 
-export interface IMainPageState {
+export interface IAuthPageState {
   placeholder?: string;
 }
 
@@ -25,23 +27,20 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
   },
 });
 
-class MainPage extends React.Component<
-  WithStyles<any> & IMainPageProps,
-  IMainPageState
-> {
+class AuthPage extends React.Component<IAuthPageProps, IAuthPageState> {
   public componentDidMount() {
     this.props.handleFinishLoading();
   }
   public render() {
-    const { classes } = this.props;
+    const { classes, handleSignIn } = this.props;
     return (
       <div className={classes.root}>
         <Grid container={true} justify={'center'}>
-          <MainSearchContainer />
+          <AuthContainer handleSignIn={handleSignIn} />
         </Grid>
       </div>
     );
   }
 }
 
-export default withStyles(styles)(MainPage);
+export default withStyles(styles)(AuthPage);

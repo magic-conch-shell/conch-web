@@ -11,13 +11,16 @@ import classnames from 'classnames';
 import * as React from 'react';
 
 import { IUser } from '../../interfaces/User';
+import { ThemeTypes } from '../../themes/mainTheme';
+import { withRouter, RouteComponentProps, Redirect } from 'react-router-dom';
 
-export interface INavBarAccountProps {
+export interface INavBarAccountProps extends WithStyles<typeof styles> {
   anchorEl: HTMLElement | undefined;
   handleClick: (event: any) => void;
   handleClose: () => void;
   handleSignOut: () => void;
   isTransparent: boolean;
+  theme: ThemeTypes;
   user: IUser | null;
 }
 
@@ -31,13 +34,9 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
     display: 'flex',
   },
   accountMenuButton: {
+    color: theme.palette.primary.main,
     fontSize: '1.25rem',
     fontWeight: 'bold',
-  },
-  blackText: {
-    '& *': {
-      color: 'black',
-    },
   },
   whiteText: {
     '& *': {
@@ -55,7 +54,7 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
 });
 
 class NavBarAccount extends React.Component<
-  WithStyles<any> & INavBarAccountProps,
+  RouteComponentProps<any> & INavBarAccountProps,
   INavBarAccountState
 > {
   public render() {
@@ -65,25 +64,31 @@ class NavBarAccount extends React.Component<
       handleClick,
       handleClose,
       handleSignOut,
-      isTransparent,
+      location,
+      theme,
       user,
     } = this.props;
     return (
       <div
         className={classnames(
           classes.navBarAccountContainers,
-          isTransparent ? classes.blackText : classes.whiteText
+          theme === ThemeTypes.DARK && classes.whiteText
         )}
       >
-        {!user ? (
+        {location.pathname === '/login' ||
+        location.pathname === '/register' ? null : !user ? (
           <div className={classes.accountMenuButtonContainer}>
-            <Button variant="text" className={classes.accountMenuButton}>
+            <Button
+              variant="text"
+              className={classes.accountMenuButton}
+              onClick={() => <Redirect to="/login" />}
+            >
               Log In
             </Button>
-            <div className={classes.verticalDivider}>|</div>
-            <Button variant="text" className={classes.accountMenuButton}>
+            {/* <div className={classes.verticalDivider}>|</div> */}
+            {/* <Button variant="text" className={classes.accountMenuButton}>
               Sign Up
-            </Button>
+            </Button> */}
           </div>
         ) : (
           <div className={classes.userAccount}>
@@ -105,4 +110,4 @@ class NavBarAccount extends React.Component<
   }
 }
 
-export default withStyles(styles)(NavBarAccount);
+export default withRouter(withStyles(styles)(NavBarAccount));

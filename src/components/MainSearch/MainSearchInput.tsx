@@ -12,8 +12,10 @@ import {
 import * as React from 'react';
 import TextareaAutosize from 'react-textarea-autosize';
 
-export interface IMainSearchInputProps {
+export interface IMainSearchInputProps extends WithStyles<typeof styles> {
   inputState: InputState;
+  setInputStateToDefault: () => void;
+  setInputStateToExpanded: () => void;
   toggleInputState: () => void;
 }
 
@@ -72,16 +74,35 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
 });
 
 class MainSearchInput extends React.Component<
-  WithStyles<any> & IMainSearchInputProps,
+  IMainSearchInputProps,
   IMainSearchInputState
 > {
+  public inputRef: HTMLTextAreaElement | null;
   public state = {
     disableInputIcon: false,
   };
+  constructor(props: IMainSearchInputProps) {
+    super(props);
+    this.state = {
+      disableInputIcon: false,
+    };
+    this.inputRef = null;
+  }
 
   public handleHeightChange = (height: any) => {
-    if (height > 15 && this.props.inputState === InputState.DEFAULT) {
-      this.props.toggleInputState();
+    const {
+      inputState,
+      setInputStateToDefault,
+      setInputStateToExpanded,
+    } = this.props;
+    if (this.inputRef) {
+      console.log(this.inputRef.rows);
+      if (inputState === InputState.DEFAULT && this.inputRef.rows > 2) {
+        setInputStateToExpanded();
+      }
+      if (inputState === InputState.EXPANDED && this.inputRef.rows === 1) {
+        setInputStateToDefault();
+      }
     }
   };
 
@@ -91,6 +112,7 @@ class MainSearchInput extends React.Component<
     return (
       <>
         <TextareaAutosize
+          inputRef={(ref) => (this.inputRef = ref)}
           className={classes.input}
           onHeightChange={(height) => this.handleHeightChange(height)}
           minRows={rowCounts[inputState].min}

@@ -3,16 +3,19 @@ import {
   Theme,
   WithStyles,
   withStyles,
+  CircularProgress,
 } from '@material-ui/core';
 import React, { Component } from 'react';
 import { RouteComponentProps, withRouter } from 'react-router';
 
 import { IUser } from '../../interfaces/User';
 import { ThemeTypes } from '../AppContainer/AppContainer';
+import FooterContainer from '../Footer/FooterContainer';
 import MainContent from '../MainContent/MainContent';
 import NavBar from '../NavBar/NavBar';
+import NavBarAccount from '../NavBar/NavBarAccount';
 
-// import axios from 'axios';
+import axios from 'axios';
 
 export interface IAppState {
   loading: boolean;
@@ -29,6 +32,16 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
   root: {
     backgroundColor: theme.palette.background.default,
     height: '100%',
+    display: 'flex',
+  },
+  loading: {
+    margin: 'auto',
+  },
+  loadingContainer: {
+    display: 'flex',
+    width: '25%',
+    height: '25%',
+    margin: 'auto',
   },
 });
 
@@ -37,25 +50,35 @@ class App extends Component<
   IAppState
 > {
   public state = {
-    loading: false,
+    loading: true,
     navBarAnchorEl: undefined,
-    user: {
-      id: 0,
-      email: 'scoot.donnelly@gmail.com',
-      phone: '647-381-4426',
-      nickname: 'sdonnelly',
-    },
+    user: null,
   };
 
   public componentDidMount() {
-    // axios.post(`https://www.googleapis.com/identitytoolkit/v3/relyingparty/getOobConfirmationCode?key=${process.env.REACT_APP_FB_RESET_PW_KEY}`, payload)
-    //   .then(resp => {
-    //     this.handleSendPasswordResetSuccess(resp.data);
-    //   })
-    //   .catch(err => {
-    //     this.handleSendPasswordResetError(err);
-    //   });
+    axios({
+      method: 'post',
+      url: '/login',
+      params: {},
+    })
+      .then((result) => {
+        const { data } = result;
+        const { id, nickname, email, phone } = data;
+        this.handleSignIn({
+          id,
+          nickname,
+          email,
+          phone,
+        });
+      })
+      .catch((err) => console.log(err))
+      .finally(() => this.finishLoading());
   }
+
+  public finishLoading = () => {
+    this.setState({ loading: false });
+  };
+
   public navBarHandleClick = (event: any) => {
     this.setState({ navBarAnchorEl: event.currentTarget });
   };
@@ -64,11 +87,29 @@ class App extends Component<
     this.setState({ navBarAnchorEl: undefined });
   };
 
+  public handleSignIn = (user: IUser) => {
+    this.setState({ user }, () => {
+      this.props.history.push('/');
+    });
+  };
+
   public handleSignOut = () => {
-    this.setState({ user: null });
+    axios({
+      method: 'post',
+      url: '/logout',
+    })
+      .then((result) => {
+        console.log(result);
+        this.props.history.push('/');
+      })
+      .catch((err) => console.log(err))
+      .finally(() => {
+        this.setState({ user: null });
+      });
   };
 
   public render() {
+    const { navBarAnchorEl, loading, user } = this.state;
     const { classes, location, toggleTheme, theme } = this.props;
     const isTransparent = location.pathname === '/';
     return (
@@ -78,16 +119,24 @@ class App extends Component<
           toggleTheme={toggleTheme}
           theme={theme}
         >
-          {/* <NavBarAccount
-              anchorEl={navBarAnchorEl}
-              handleClick={this.navBarHandleClick}
-              handleClose={this.navBarHandleClose}
-              handleSignOut={this.handleSignOut}
-              isTransparent={isTransparent}
-              user={user}
-            /> */}
+          <NavBarAccount
+            anchorEl={navBarAnchorEl}
+            handleClick={this.navBarHandleClick}
+            handleClose={this.navBarHandleClose}
+            handleSignOut={this.handleSignOut}
+            isTransparent={isTransparent}
+            theme={theme}
+            user={user}
+          />
         </NavBar>
-        <MainContent />
+        {loading ? (
+          <div className={classes.loadingContainer}>
+            <CircularProgress className={classes.loading} size={96} />
+          </div>
+        ) : (
+          <MainContent user={user} handleSignIn={this.handleSignIn} />
+        )}
+        <FooterContainer theme={theme} toggleTheme={toggleTheme} />
       </div>
     );
   }

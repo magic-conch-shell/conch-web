@@ -7,11 +7,12 @@ import {
 } from '@material-ui/core';
 import Downshift from 'downshift';
 import * as React from 'react';
+import classnames from 'classnames';
 
 export interface IMainSearchSelectProps {
   handleSelectTag: (tagId: number) => void;
   selectedTags: number[];
-  tags: Array<{ id: number; label: string }>;
+  tags: Array<{ id: number; name: string }>;
 }
 
 export interface IMainSearchSelectState {
@@ -22,6 +23,7 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
   root: {},
   container: {
     width: 'calc(100% - 12px)',
+    zIndex: 1,
   },
   input: {
     backgroundColor: 'transparent',
@@ -38,8 +40,24 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
       color: theme.palette.text.primary,
     },
   },
+  listItem: {
+    backgroundColor: 'transparent',
+    color: theme.palette.text.primary,
+    paddingTop: theme.spacing.unit,
+    paddingBottom: theme.spacing.unit,
+    paddingLeft: theme.spacing.unit * 2,
+    display: 'block',
+    cursor: 'pointer',
+  },
   selectedTagsContainer: {
     marginTop: '8px',
+  },
+  paper: {
+    maxHeight: '300px',
+    overflowY: 'scroll',
+  },
+  highlighted: {
+    backgroundColor: theme.palette.background.default,
   },
 });
 
@@ -51,11 +69,15 @@ class MainSearchSelect extends React.Component<
     selectValue: '',
   };
 
-  public handleSelectChange = (item: { id: number; label: string }) => {
+  public handleSelectChange = (item: { id: number; name: string }) => {
     this.props.handleSelectTag(item.id);
     this.setState({
       selectValue: '',
     });
+  };
+
+  public handleSelectValueChange = (ev: any) => {
+    this.setState({ selectValue: ev.target.value });
   };
 
   public render() {
@@ -65,7 +87,7 @@ class MainSearchSelect extends React.Component<
         <Downshift
           id="downshift-select"
           onChange={this.handleSelectChange}
-          itemToString={(item) => (item ? item.label : '')}
+          itemToString={(item) => (item ? item.name : '')}
         >
           {({
             getInputProps,
@@ -92,28 +114,33 @@ class MainSearchSelect extends React.Component<
                       {tags
                         .filter((tag) => !selectedTags.includes(tag.id))
                         .filter((tag) => {
-                          const { label } = tag;
-                          const labelLower = label.toLocaleLowerCase();
+                          const { name } = tag;
+                          const nameLower = name.toLocaleLowerCase();
                           const result =
                             !inputValueLower ||
-                            labelLower.includes(inputValueLower);
+                            nameLower.includes(inputValueLower);
                           return result;
                         })
-                        .map((t) => {
-                          const { id, label } = t;
+                        .slice(0, 30)
+                        .map((t, index) => {
+                          const { id, name } = t;
                           return (
                             <li
                               {...getItemProps({
                                 item: {
                                   id,
-                                  label,
+                                  name,
                                 },
                               })}
-                              component="div"
+                              className={classnames(
+                                classes.listItem,
+                                highlightedIndex === index &&
+                                  classes.highlighted
+                              )}
                               key={id}
-                              value={label}
+                              value={name}
                             >
-                              {t.label}
+                              {t.name}
                             </li>
                           );
                         })}

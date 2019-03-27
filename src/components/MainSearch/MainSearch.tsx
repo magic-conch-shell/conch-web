@@ -5,14 +5,15 @@ import {
   withStyles,
 } from '@material-ui/core';
 import * as React from 'react';
+import axios from 'axios';
 import posed from 'react-pose';
 import { RouteComponentProps, withRouter } from 'react-router-dom';
 
+import InputContainer from '../Input/InputContainer';
 import MainSearchInput from './MainSearchInput';
 import MainSearchSelect from './MainSearchSelect';
-import MainSearchTitle from './MainSearchTitle';
-import InputContainer from '../Input/InputContainer';
 import MainSearchTagContainer from './MainSearchTagContainer';
+import MainSearchTitle from './MainSearchTitle';
 
 export interface IMainSearchProps extends RouteComponentProps, WithStyles {
   placeholder?: string;
@@ -21,7 +22,7 @@ export interface IMainSearchProps extends RouteComponentProps, WithStyles {
 export interface IMainSearchState {
   state: InputState;
   selectedTags: number[];
-  tags: Array<{ id: number; label: string }>;
+  tags: Array<{ id: number; name: string }>;
 }
 
 enum InputState {
@@ -92,15 +93,20 @@ class MainSearch extends React.Component<IMainSearchProps, IMainSearchState> {
     this.state = {
       state: InputState.DEFAULT,
       selectedTags: [] as number[],
-      tags: [] as Array<{ id: number; label: string }>,
+      tags: [] as Array<{ id: number; name: string }>,
     };
     this.heightRef = React.createRef();
   }
 
   public componentDidMount() {
-    const tags = require('../../constants/tags.json');
+    axios('/api/tags').then((result) => {
+      const { data } = result;
+      this.setState({ tags: data });
+    });
+    // const request = axios('http://localhost:3000/api/tags');
+    // request.then((result) => console.log(result));
 
-    this.setState({ tags });
+    // this.setState({ tags });
   }
 
   public handleSubmit = (ev: any) => {
@@ -110,6 +116,14 @@ class MainSearch extends React.Component<IMainSearchProps, IMainSearchState> {
 
   public toggleInputState = () => {
     this.setState((prevState) => ({ state: 1 - prevState.state }));
+  };
+
+  public setInputStateToDefault = () => {
+    this.setState({ state: InputState.DEFAULT });
+  };
+
+  public setInputStateToExpanded = () => {
+    this.setState({ state: InputState.EXPANDED });
   };
 
   public setHeightRef = () => {
@@ -152,6 +166,8 @@ class MainSearch extends React.Component<IMainSearchProps, IMainSearchState> {
             <MainSearchInput
               inputState={state}
               toggleInputState={this.toggleInputState}
+              setInputStateToDefault={this.setInputStateToDefault}
+              setInputStateToExpanded={this.setInputStateToExpanded}
             />
           </InputContainer>
         </HeightContainer>

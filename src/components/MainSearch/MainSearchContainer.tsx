@@ -21,6 +21,7 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
     margin: 'auto',
     display: 'flex',
     width: '40%',
+    position: 'relative',
   },
 });
 

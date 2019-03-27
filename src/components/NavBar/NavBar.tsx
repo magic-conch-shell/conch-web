@@ -5,12 +5,11 @@ import {
   Toolbar,
   WithStyles,
   withStyles,
-  IconButton,
 } from '@material-ui/core';
-import { FlashOn, FlashOff } from '@material-ui/icons';
 import classNames from 'classnames';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
+
 import { ThemeTypes } from '../AppContainer/AppContainer';
 
 export interface INavBarProps {
@@ -89,16 +88,13 @@ class NavBar extends React.Component<
   INavBarState
 > {
   public render() {
-    const { classes, isTransparent, theme, toggleTheme } = this.props;
+    const { classes, theme } = this.props;
     const logoColor = theme === ThemeTypes.LIGHT ? 'purple' : 'white';
     return (
       <div className={classes.root}>
         <AppBar
           position="fixed"
-          className={classNames(
-            classes.appBar,
-            isTransparent && classes.appBarTransparent
-          )}
+          className={classNames(classes.appBar, classes.appBarTransparent)}
         >
           <Toolbar className={classes.toolbar}>
             <Link to="/">
@@ -108,14 +104,6 @@ class NavBar extends React.Component<
               />
             </Link>
             <div className={classes.marginLeftAuto}>
-              <IconButton onClick={toggleTheme}>
-                {theme === ThemeTypes.LIGHT && (
-                  <FlashOn className={classes.lightIcon} />
-                )}
-                {theme === ThemeTypes.DARK && (
-                  <FlashOff className={classes.darkIcon} />
-                )}
-              </IconButton>
               <div className={classes.actions}>{this.props.children}</div>
             </div>
           </Toolbar>

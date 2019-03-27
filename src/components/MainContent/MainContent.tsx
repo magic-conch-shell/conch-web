@@ -7,12 +7,15 @@ import {
 } from '@material-ui/core';
 import classnames from 'classnames';
 import * as React from 'react';
-import { Route, Switch } from 'react-router';
+import { Route, Switch, Redirect } from 'react-router';
 
 import MainPage from '../Pages/MainPage';
+import { IUser } from '../../interfaces/User';
+import AuthPage from '../Pages/AuthPage';
 
 export interface IMainContentProps {
-  placeholder?: string;
+  handleSignIn: (user: IUser) => void;
+  user: IUser | null;
 }
 
 export interface IMainContentState {
@@ -22,6 +25,7 @@ export interface IMainContentState {
 const styles: StyleRulesCallback<any> = (theme: Theme) => ({
   root: {
     height: 'calc(100% - 90px)',
+    marginTop: '90px',
     width: '100%',
     display: 'flex',
   },
@@ -70,14 +74,22 @@ class MainContent extends React.Component<
   };
 
   public render() {
-    const { classes } = this.props;
+    const { classes, user } = this.props;
     const { loading } = this.state;
     const homePage = () => {
       return <MainPage handleFinishLoading={this.handleFinishedLoading} />;
     };
+    const authPage = () => {
+      return (
+        <AuthPage
+          handleFinishLoading={this.handleFinishedLoading}
+          handleSignIn={this.props.handleSignIn}
+        />
+      );
+    };
     return (
       <div className={classes.root}>
-        <React.Fragment>
+        <>
           {loading && (
             <div className={classes.loadingContainer}>
               <CircularProgress className={classes.loading} size={96} />
@@ -90,10 +102,17 @@ class MainContent extends React.Component<
             )}
           >
             <Switch>
-              <Route exact={true} path="/" render={homePage} />
+              <Route
+                exact={true}
+                path="/"
+                render={() => {
+                  return user ? homePage() : <Redirect to="/login" />;
+                }}
+              />
+              <Route path="/login" render={authPage} />
             </Switch>
           </div>
-        </React.Fragment>
+        </>
       </div>
     );
   }

@@ -12,7 +12,7 @@ export interface IMainSearchTagContainerProps
   extends WithStyles<typeof styles> {
   handleDeleteTag: (tagId: number) => void;
   selectedTags: number[];
-  tags: Array<{ id: number; label: string }>;
+  tags: Array<{ id: number; name: string }>;
 }
 
 export interface IMainSearchTagContainerState {
@@ -23,6 +23,7 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
   root: {},
   selectedTagsContainer: {
     marginTop: theme.spacing.unit,
+    zIndex: -1,
   },
   selectedTag: {
     backgroundColor: theme.palette.background.default,
@@ -44,7 +45,7 @@ class MainSearchTagContainer extends React.Component<
   public getTagById = (id: number) => {
     const { tags } = this.props;
     const len = tags.length;
-    let result = {} as { id: number; label: string };
+    let result = {} as { id: number; name: string };
     for (let i = 0; i < len; i += 1) {
       if (tags[i].id === id) {
         result = tags[i];
@@ -64,7 +65,7 @@ class MainSearchTagContainer extends React.Component<
           <Chip
             key={sid}
             className={classes.selectedTag}
-            label={this.getTagById(sid).label}
+            label={this.getTagById(sid).name}
             onDelete={() => this.handleDelete(sid)}
             deleteIcon={<ClearIcon className={classes.deleteIcon} />}
           />

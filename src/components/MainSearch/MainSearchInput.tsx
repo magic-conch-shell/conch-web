@@ -1,19 +1,23 @@
 import {
+  IconButton,
   StyleRulesCallback,
   Theme,
+  Tooltip,
   WithStyles,
   withStyles,
-  IconButton,
 } from '@material-ui/core';
 import {
   AddCircleOutlined as AddIcon,
-  RemoveCircleOutlined as RemoveIcon,
+  Send as SendIcon,
 } from '@material-ui/icons';
 import * as React from 'react';
 import TextareaAutosize from 'react-textarea-autosize';
 
 export interface IMainSearchInputProps extends WithStyles<typeof styles> {
+  content: string;
   inputState: InputState;
+  handleChange: (content: string) => void;
+  handleSubmit: () => void;
   setInputStateToDefault: () => void;
   setInputStateToExpanded: () => void;
   toggleInputState: () => void;
@@ -28,14 +32,12 @@ enum InputState {
   EXPANDED,
 }
 
-const rowCounts: { [key in InputState]: { min: number; max: number } } = {
+const rowCounts: { [key in InputState]: { min: number } } = {
   [InputState.DEFAULT]: {
     min: 1,
-    max: 2,
   },
   [InputState.EXPANDED]: {
     min: 8,
-    max: 40,
   },
 };
 
@@ -73,6 +75,15 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
   },
 });
 
+const IconButtonStates: { [key in InputState]: { tooltip: string } } = {
+  [InputState.DEFAULT]: {
+    tooltip: 'Expand',
+  },
+  [InputState.EXPANDED]: {
+    tooltip: 'Submit Question',
+  },
+};
+
 class MainSearchInput extends React.Component<
   IMainSearchInputProps,
   IMainSearchInputState
@@ -90,25 +101,27 @@ class MainSearchInput extends React.Component<
   }
 
   public handleHeightChange = (height: any) => {
-    const {
-      inputState,
-      setInputStateToDefault,
-      setInputStateToExpanded,
-    } = this.props;
+    const { inputState, setInputStateToExpanded } = this.props;
     if (this.inputRef) {
-      console.log(this.inputRef.rows);
-      if (inputState === InputState.DEFAULT && this.inputRef.rows > 2) {
+      if (inputState === InputState.DEFAULT && height > 15) {
         setInputStateToExpanded();
-      }
-      if (inputState === InputState.EXPANDED && this.inputRef.rows === 1) {
-        setInputStateToDefault();
       }
     }
   };
 
+  public _handleChange = (ev: any) => {
+    this.props.handleChange(ev.target.value);
+  };
+
   public render() {
     const { disableInputIcon } = this.state;
-    const { classes, inputState, toggleInputState } = this.props;
+    const {
+      classes,
+      content,
+      handleSubmit,
+      inputState,
+      toggleInputState,
+    } = this.props;
     return (
       <>
         <TextareaAutosize
@@ -116,20 +129,28 @@ class MainSearchInput extends React.Component<
           className={classes.input}
           onHeightChange={(height) => this.handleHeightChange(height)}
           minRows={rowCounts[inputState].min}
-          maxRows={rowCounts[inputState].max}
           name="question"
           placeholder="Ask a Question"
           autoFocus={true}
           required={true}
+          value={content}
+          onChange={this._handleChange}
         />
-        <IconButton
-          className={classes.inputIcon}
-          onClick={toggleInputState}
-          disabled={disableInputIcon}
-        >
-          {inputState === InputState.DEFAULT && <AddIcon />}
-          {inputState === InputState.EXPANDED && <RemoveIcon />}
-        </IconButton>
+        <Tooltip title={IconButtonStates[inputState].tooltip} placement="right">
+          <IconButton
+            className={classes.inputIcon}
+            onClick={
+              inputState === InputState.DEFAULT
+                ? toggleInputState
+                : handleSubmit
+            }
+            disabled={disableInputIcon}
+            tabIndex={-1}
+          >
+            {inputState === InputState.DEFAULT && <AddIcon />}
+            {inputState === InputState.EXPANDED && <SendIcon />}
+          </IconButton>
+        </Tooltip>
       </>
     );
   }

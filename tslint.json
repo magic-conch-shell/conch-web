@@ -5,7 +5,8 @@
     "object-literal-sort-keys": false,
     "jsx-no-lambda": false,
     "quotemark": false,
-    "ordered-imports": false
+    "ordered-imports": false,
+    "variable-name": false
   },
   "linterOptions": {
     "exclude": [

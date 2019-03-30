@@ -87,6 +87,9 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
     paddingLeft: theme.spacing.unit * 3,
     paddingRight: theme.spacing.unit * 3,
   },
+  authForm: {
+    width: '100%',
+  },
   extraActions: {
     display: 'flex',
     textAlign: 'center',
@@ -169,7 +172,7 @@ class AuthFormContainer extends React.Component<
     this.setState({ password: event.target.value });
   };
 
-  public signIn = (callback: () => void) => {
+  public signIn = () => {
     const { handleSignIn } = this.props;
     const { email, password, states } = this.state;
     const { signIn } = states;
@@ -199,15 +202,11 @@ class AuthFormContainer extends React.Component<
           signIn.errorText = error;
           this.setState({ states });
         }
-      })
-      .finally(() => {
-        console.log('finally');
-        callback();
       });
   };
 
-  public signUp = (callback: () => void) => {
-    // const { handleSignIn } = this.props;
+  public signUp = () => {
+    const { handleSignIn } = this.props;
     const { nickname, email, password, states } = this.state;
     const { signUp } = states;
 
@@ -221,11 +220,16 @@ class AuthFormContainer extends React.Component<
       },
     })
       .then((result) => {
-        console.log('then');
-        console.log(result.data);
-        // handleSignIn({
-        //   nickname
-        // })
+        const { data } = result;
+        const { id, nickname: userNickname, email: userEmail, phone } = data;
+        handleSignIn({
+          id,
+          nickname: userNickname,
+          email: userEmail,
+          phone,
+        });
+        signUp.state = SignUpState.SIGNED_UP;
+        this.setState({ states });
       })
       .catch((err) => {
         if (err.response) {
@@ -234,32 +238,25 @@ class AuthFormContainer extends React.Component<
           signUp.errorText = error;
           this.setState({ states });
         }
-      })
-      .finally(() => {
-        console.log('finally');
-        callback();
       });
   };
 
-  public submitForm = () => {
+  public submitForm = (ev?: any) => {
+    if (ev) {
+      ev.preventDefault();
+    }
     const { currentState, states } = this.state;
     const { signIn, signUp } = states;
     if (currentState === 'signIn') {
       signIn.state = SignInState.SIGNING_IN;
       this.setState({ states }, () => {
-        this.signIn(() => {
-          signIn.state = SignInState.SIGNED_IN;
-          this.setState({ states });
-        });
+        this.signIn();
       });
     }
     if (currentState === 'signUp') {
       signUp.state = SignUpState.SIGNING_UP;
       this.setState({ states }, () => {
-        this.signUp(() => {
-          signUp.state = SignUpState.SIGNED_UP;
-          this.setState({ states });
-        });
+        this.signUp();
       });
     }
     // if (authDialogState === 'resetPassword') {
@@ -317,55 +314,69 @@ class AuthFormContainer extends React.Component<
     const activeText = this.getActiveText(activeState, currentState);
     return (
       <div className={classes.root}>
-        <form className={classes.authForm} id="auth-form">
+        <form
+          className={classes.authForm}
+          onSubmit={(ev) => this.submitForm(ev)}
+          id="auth-form"
+        >
           {currentState === 'signUp' && (
-            <FormControl fullWidth={true} className={classes.formControl}>
+            <FormControl
+              fullWidth={true}
+              error={errorText.length > 0}
+              required={true}
+              className={classes.formControl}
+            >
               <InputLabel htmlFor="inputNickname">Nickname</InputLabel>
               <Input
                 id="inputNickname"
                 value={nickname}
-                required={true}
                 autoFocus={true}
                 type={'text'}
                 autoComplete={'username'}
                 onChange={this.handleNicknameChange}
-                error={errorText.length > 0}
               />
               <FormHelperText id="inputEmailError">{errorText}</FormHelperText>
             </FormControl>
           )}
-          <FormControl fullWidth={true} className={classes.formControl}>
+          <FormControl
+            required={true}
+            fullWidth={true}
+            className={classes.formControl}
+            error={errorText.length > 0}
+          >
             <InputLabel htmlFor="inputEmail">Email Address</InputLabel>
             <Input
               id="inputEmail"
               value={email}
-              required={true}
               autoFocus={true}
               type={'email'}
               autoComplete={'email'}
               onChange={this.handleEmailChange}
-              error={errorText.length > 0}
               className={classes.input}
             />
             <FormHelperText id="inputEmailError">{errorText}</FormHelperText>
           </FormControl>
           {currentState !== 'resetPassword' && (
-            <FormControl fullWidth={true} className={classes.formControl}>
+            <FormControl
+              required={true}
+              fullWidth={true}
+              className={classes.formControl}
+              error={errorText.length > 0}
+            >
               <InputLabel htmlFor="inputPassword">Password</InputLabel>
               <Input
                 id="inputPassword"
                 value={password}
-                required={true}
                 type={'password'}
                 autoComplete={'current-password'}
                 onChange={this.handlePasswordChange}
-                error={errorText.length > 0}
               />
               <FormHelperText id="inputPasswordError">
                 {errorText}
               </FormHelperText>
             </FormControl>
           )}
+          <button style={{ display: 'none' }} type="submit" />
         </form>
         <Button
           variant="contained"

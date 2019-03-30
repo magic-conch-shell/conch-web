@@ -7,7 +7,8 @@ import {
 import * as React from 'react';
 
 export interface IMainSearchTitleProps {
-  placeholder?: string;
+  handleChange: (title: string) => void;
+  title: string;
 }
 
 export interface IMainSearchTitleState {
@@ -37,13 +38,19 @@ class MainSearchTitle extends React.Component<
   WithStyles<any> & IMainSearchTitleProps,
   IMainSearchTitleState
 > {
+  public _handleChange = (ev: any) => {
+    this.props.handleChange(ev.target.value);
+  };
+
   public render() {
-    const { classes } = this.props;
+    const { classes, title } = this.props;
     return (
       <input
         className={classes.input}
         type="text"
         placeholder="Enter a title (optional)"
+        value={title}
+        onChange={this._handleChange}
       />
     );
   }

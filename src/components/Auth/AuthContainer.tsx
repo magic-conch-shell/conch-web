@@ -33,7 +33,7 @@ class AuthContainer extends React.Component<
   public render() {
     const { classes, handleSignIn } = this.props;
     return (
-      <Grid item={true} xs={10} sm={6} md={4} lg={3} className={classes.root}>
+      <Grid item={true} xs={10} sm={6} md={4} lg={4} className={classes.root}>
         <AuthFormContainer handleSignIn={handleSignIn} />
       </Grid>
     );

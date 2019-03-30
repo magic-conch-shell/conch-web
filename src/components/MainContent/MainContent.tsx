@@ -7,11 +7,19 @@ import {
 } from '@material-ui/core';
 import classnames from 'classnames';
 import * as React from 'react';
-import { Route, Switch, Redirect } from 'react-router';
+import {
+  Route,
+  Switch,
+  Redirect,
+  RouteComponentProps,
+  StaticContext,
+  withRouter,
+} from 'react-router';
 
 import MainPage from '../Pages/MainPage';
 import { IUser } from '../../interfaces/User';
 import AuthPage from '../Pages/AuthPage';
+import ResultPage from '../Pages/ResultPage';
 
 export interface IMainContentProps {
   handleSignIn: (user: IUser) => void;
@@ -48,7 +56,7 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
 });
 
 class MainContent extends React.Component<
-  WithStyles<any> & IMainContentProps,
+  RouteComponentProps<any> & WithStyles<any> & IMainContentProps,
   IMainContentState
 > {
   public state = {
@@ -74,7 +82,8 @@ class MainContent extends React.Component<
   };
 
   public render() {
-    const { classes, user } = this.props;
+    const { classes, location, user } = this.props;
+    console.log(location);
     const { loading } = this.state;
     const homePage = () => {
       return <MainPage handleFinishLoading={this.handleFinishedLoading} />;
@@ -86,6 +95,13 @@ class MainContent extends React.Component<
           handleSignIn={this.props.handleSignIn}
         />
       );
+    };
+    const resultPage = (
+      props: RouteComponentProps<any, StaticContext, any>
+    ) => {
+      const { questionId } = props.match.params;
+      console.log(questionId);
+      return <ResultPage questionId={questionId} />;
     };
     return (
       <div className={classes.root}>
@@ -101,7 +117,7 @@ class MainContent extends React.Component<
               loading && classes.hidden
             )}
           >
-            <Switch>
+            <Switch location={location}>
               <Route
                 exact={true}
                 path="/"
@@ -110,6 +126,10 @@ class MainContent extends React.Component<
                 }}
               />
               <Route path="/login" render={authPage} />
+              <Route
+                path="/results/:questionId"
+                render={(props) => resultPage(props)}
+              />
             </Switch>
           </div>
         </>
@@ -118,4 +138,4 @@ class MainContent extends React.Component<
   }
 }
 
-export default withStyles(styles)(MainContent);
+export default withRouter(withStyles(styles)(MainContent));

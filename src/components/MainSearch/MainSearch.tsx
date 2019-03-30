@@ -20,7 +20,10 @@ export interface IMainSearchProps extends RouteComponentProps, WithStyles {
 }
 
 export interface IMainSearchState {
-  state: InputState;
+  content: string;
+  title: string;
+  inputState: InputState;
+  submissionState: SubmissionState;
   selectedTags: number[];
   tags: Array<{ id: number; name: string }>;
 }
@@ -28,6 +31,11 @@ export interface IMainSearchState {
 enum InputState {
   DEFAULT,
   EXPANDED,
+}
+
+enum SubmissionState {
+  DEFAULT,
+  SUBMITTED,
 }
 
 const OpacityContainer = posed.div({
@@ -55,7 +63,7 @@ const HeightContainer = posed.div({
 export type InputStates = 'default' | 'expanded';
 
 const styles: StyleRulesCallback<any> = (theme: Theme) => ({
-  form: {
+  root: {
     width: '100%',
     height: '100%',
   },
@@ -91,7 +99,10 @@ class MainSearch extends React.Component<IMainSearchProps, IMainSearchState> {
   constructor(props: IMainSearchProps) {
     super(props);
     this.state = {
-      state: InputState.DEFAULT,
+      content: '',
+      title: '',
+      inputState: InputState.DEFAULT,
+      submissionState: SubmissionState.DEFAULT,
       selectedTags: [] as number[],
       tags: [] as Array<{ id: number; name: string }>,
     };
@@ -103,27 +114,44 @@ class MainSearch extends React.Component<IMainSearchProps, IMainSearchState> {
       const { data } = result;
       this.setState({ tags: data });
     });
-    // const request = axios('http://localhost:3000/api/tags');
-    // request.then((result) => console.log(result));
-
-    // this.setState({ tags });
   }
 
-  public handleSubmit = (ev: any) => {
-    ev.preventDefault();
-    console.log('Submit!');
+  public handleSubmit = () => {
+    const { content, title, selectedTags } = this.state;
+    axios({
+      method: 'post',
+      url: '/api/questions',
+      params: {
+        title,
+        content,
+        tags: selectedTags,
+      },
+    })
+      .then((result) => {
+        const { data } = result;
+        const { id } = data;
+        this.setSubmissionStateToSubmitted(id);
+      })
+      .catch((err) => console.log(err));
   };
 
   public toggleInputState = () => {
-    this.setState((prevState) => ({ state: 1 - prevState.state }));
+    this.setState((prevState) => ({ inputState: 1 - prevState.inputState }));
   };
 
   public setInputStateToDefault = () => {
-    this.setState({ state: InputState.DEFAULT });
+    this.setState({ inputState: InputState.DEFAULT });
   };
 
   public setInputStateToExpanded = () => {
-    this.setState({ state: InputState.EXPANDED });
+    this.setState({ inputState: InputState.EXPANDED });
+  };
+
+  public setSubmissionStateToSubmitted = (questionId: number) => {
+    const { history } = this.props;
+    this.setState({ submissionState: SubmissionState.SUBMITTED }, () => {
+      history.push(`/results/${questionId}`);
+    });
   };
 
   public setHeightRef = () => {
@@ -141,17 +169,28 @@ class MainSearch extends React.Component<IMainSearchProps, IMainSearchState> {
     this.setState({ selectedTags });
   };
 
+  public handleChangeContent = (content: string) => {
+    this.setState({ content });
+  };
+
+  public handleChangeTitle = (title: string) => {
+    this.setState({ title });
+  };
+
   public render() {
-    const { selectedTags, state, tags } = this.state;
+    const { selectedTags, inputState, title, content, tags } = this.state;
     const { classes } = this.props;
     return (
-      <form className={classes.form} onSubmit={(ev) => this.handleSubmit(ev)}>
+      <form className={classes.root}>
         <OpacityContainer
-          pose={state === InputState.EXPANDED ? 'visible' : 'hidden'}
+          pose={inputState === InputState.EXPANDED ? 'visible' : 'hidden'}
         >
-          {state === InputState.EXPANDED && (
+          {inputState === InputState.EXPANDED && (
             <InputContainer>
-              <MainSearchTitle />
+              <MainSearchTitle
+                title={title}
+                handleChange={this.handleChangeTitle}
+              />
             </InputContainer>
           )}
         </OpacityContainer>
@@ -160,11 +199,14 @@ class MainSearch extends React.Component<IMainSearchProps, IMainSearchState> {
           onPoseComplete={() => {
             this.setHeightRef();
           }}
-          pose={state === InputState.EXPANDED ? 'expanded' : 'default'}
+          pose={inputState === InputState.EXPANDED ? 'expanded' : 'default'}
         >
           <InputContainer>
             <MainSearchInput
-              inputState={state}
+              inputState={inputState}
+              content={content}
+              handleChange={this.handleChangeContent}
+              handleSubmit={this.handleSubmit}
               toggleInputState={this.toggleInputState}
               setInputStateToDefault={this.setInputStateToDefault}
               setInputStateToExpanded={this.setInputStateToExpanded}
@@ -185,7 +227,6 @@ class MainSearch extends React.Component<IMainSearchProps, IMainSearchState> {
           selectedTags={selectedTags}
           tags={tags}
         />
-        <button type="submit" style={{ display: 'none' }} />
       </form>
     );
   }

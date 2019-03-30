@@ -37,13 +37,13 @@ axios.interceptors.response.use(
   }
 );
 
-const devApp = (
+const prodApp = (
   <BrowserRouter>
     <AppContainer />
   </BrowserRouter>
 );
 
-const prodApp = (
+const devApp = (
   <HashRouter>
     <AppContainer />
   </HashRouter>

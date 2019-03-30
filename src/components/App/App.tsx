@@ -98,13 +98,9 @@ class App extends Component<
       method: 'post',
       url: '/logout',
     })
-      .then((result) => {
-        console.log(result);
-        this.props.history.push('/');
-      })
       .catch((err) => console.log(err))
       .finally(() => {
-        this.setState({ user: null });
+        this.setState({ user: null }, () => this.props.history.push('/'));
       });
   };
 

@@ -139,6 +139,7 @@ class MainSearchSelect extends React.Component<
                               )}
                               key={id}
                               value={name}
+                              tabIndex={0}
                             >
                               {t.name}
                             </li>

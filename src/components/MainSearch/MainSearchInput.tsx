@@ -1,3 +1,5 @@
+import * as React from 'react';
+
 import {
   IconButton,
   StyleRulesCallback,
@@ -6,11 +8,9 @@ import {
   WithStyles,
   withStyles,
 } from '@material-ui/core';
-import {
-  AddCircleOutlined as AddIcon,
-  Send as SendIcon,
-} from '@material-ui/icons';
-import * as React from 'react';
+
+import AddCircleOutlined from '@material-ui/icons/AddCircleOutlined';
+import Send from '@material-ui/icons/Send';
 import TextareaAutosize from 'react-textarea-autosize';
 
 export interface IMainSearchInputProps extends WithStyles<typeof styles> {
@@ -147,8 +147,8 @@ class MainSearchInput extends React.Component<
             disabled={disableInputIcon}
             tabIndex={-1}
           >
-            {inputState === InputState.DEFAULT && <AddIcon />}
-            {inputState === InputState.EXPANDED && <SendIcon />}
+            {inputState === InputState.DEFAULT && <AddCircleOutlined />}
+            {inputState === InputState.EXPANDED && <Send />}
           </IconButton>
         </Tooltip>
       </>

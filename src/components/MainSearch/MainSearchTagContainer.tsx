@@ -1,12 +1,14 @@
+import * as React from 'react';
+
 import {
+  Chip,
   StyleRulesCallback,
   Theme,
   WithStyles,
   withStyles,
-  Chip,
 } from '@material-ui/core';
-import { Clear as ClearIcon } from '@material-ui/icons';
-import * as React from 'react';
+
+import Clear from '@material-ui/icons/Clear';
 
 export interface IMainSearchTagContainerProps
   extends WithStyles<typeof styles> {
@@ -67,7 +69,7 @@ class MainSearchTagContainer extends React.Component<
             className={classes.selectedTag}
             label={this.getTagById(sid).name}
             onDelete={() => this.handleDelete(sid)}
-            deleteIcon={<ClearIcon className={classes.deleteIcon} />}
+            deleteIcon={<Clear className={classes.deleteIcon} />}
           />
         ))}
       </div>

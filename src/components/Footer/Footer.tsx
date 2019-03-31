@@ -1,13 +1,16 @@
+import * as React from 'react';
+
 import {
+  IconButton,
   StyleRulesCallback,
   Theme,
   WithStyles,
   withStyles,
-  IconButton,
 } from '@material-ui/core';
-import * as React from 'react';
+
+import FlashOff from '@material-ui/icons/FlashOff';
+import FlashOn from '@material-ui/icons/FlashOn';
 import { ThemeTypes } from '../AppContainer/AppContainer';
-import { FlashOn, FlashOff } from '@material-ui/icons';
 
 export interface IFooterProps extends WithStyles<typeof styles> {
   theme: ThemeTypes;

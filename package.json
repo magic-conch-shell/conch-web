@@ -2,6 +2,7 @@
   "name": "final-project-web",
   "version": "0.1.0",
   "private": true,
+  "proxy": "http://localhost:3000",
   "homepage": "http://magic-conch-shell.github.io/conch-web",
   "dependencies": {
     "@material-ui/core": "^3.9.3",

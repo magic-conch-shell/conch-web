@@ -1,3 +1,5 @@
+import * as React from 'react';
+
 import {
   CircularProgress,
   StyleRulesCallback,
@@ -5,21 +7,21 @@ import {
   WithStyles,
   withStyles,
 } from '@material-ui/core';
-import classnames from 'classnames';
-import * as React from 'react';
 import {
-  Route,
-  Switch,
   Redirect,
+  Route,
   RouteComponentProps,
   StaticContext,
+  Switch,
   withRouter,
 } from 'react-router';
 
-import MainPage from '../Pages/MainPage';
-import { IUser } from '../../interfaces/User';
 import AuthPage from '../Pages/AuthPage';
+import { IUser } from '../../interfaces/User';
+import MainPage from '../Pages/MainPage';
+import ProfilePage from '../Pages/ProfilePage';
 import ResultPage from '../Pages/ResultPage';
+import classnames from 'classnames';
 
 export interface IMainContentProps {
   handleSignIn: (user: IUser) => void;
@@ -52,13 +54,14 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
   switchContainer: {
     height: '100%',
     width: '100%',
+    display: 'flex'
   },
 });
 
 class MainContent extends React.Component<
   RouteComponentProps<any> & WithStyles<any> & IMainContentProps,
   IMainContentState
-> {
+  > {
   public state = {
     loading: true,
   };
@@ -103,6 +106,11 @@ class MainContent extends React.Component<
       console.log(questionId);
       return <ResultPage questionId={questionId} />;
     };
+
+    const profilePage = () => {
+      return user ? <ProfilePage handleFinishLoading={this.handleFinishedLoading} user={user} /> : <Redirect to="/login" />;
+    };
+
     return (
       <div className={classes.root}>
         <>
@@ -126,6 +134,7 @@ class MainContent extends React.Component<
                 }}
               />
               <Route path="/login" render={authPage} />
+              <Route path="/profile" render={profilePage} />
               <Route
                 path="/results/:questionId"
                 render={(props) => resultPage(props)}

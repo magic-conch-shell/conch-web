@@ -1,21 +1,21 @@
 import {
+  CircularProgress,
   StyleRulesCallback,
   Theme,
   WithStyles,
   withStyles,
-  CircularProgress,
 } from '@material-ui/core';
 import React, { Component } from 'react';
 import { RouteComponentProps, withRouter } from 'react-router';
 
-import { IUser } from '../../interfaces/User';
-import { ThemeTypes } from '../AppContainer/AppContainer';
 import FooterContainer from '../Footer/FooterContainer';
+import { IUser } from '../../interfaces/User';
 import MainContent from '../MainContent/MainContent';
 import NavBar from '../NavBar/NavBar';
 import NavBarAccount from '../NavBar/NavBarAccount';
-
+import { ThemeTypes } from '../AppContainer/AppContainer';
 import axios from 'axios';
+import faker from 'faker';
 
 export interface IAppState {
   loading: boolean;
@@ -48,7 +48,7 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
 class App extends Component<
   RouteComponentProps<any> & WithStyles<any> & IAppProps,
   IAppState
-> {
+  > {
   public state = {
     loading: true,
     navBarAnchorEl: undefined,
@@ -69,6 +69,7 @@ class App extends Component<
           nickname,
           email,
           phone,
+          profileUrl: faker.image.avatar(),
         });
       })
       .catch((err) => console.log(err))
@@ -130,8 +131,8 @@ class App extends Component<
             <CircularProgress className={classes.loading} size={96} />
           </div>
         ) : (
-          <MainContent user={user} handleSignIn={this.handleSignIn} />
-        )}
+            <MainContent user={user} handleSignIn={this.handleSignIn} />
+          )}
         <FooterContainer theme={theme} toggleTheme={toggleTheme} />
       </div>
     );

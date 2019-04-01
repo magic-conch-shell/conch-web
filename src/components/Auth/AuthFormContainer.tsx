@@ -1,18 +1,20 @@
+import * as React from 'react';
+
 import {
+  Button,
+  FormControl,
+  FormHelperText,
+  Input,
+  InputLabel,
   StyleRulesCallback,
   Theme,
+  Typography,
   WithStyles,
   withStyles,
-  FormControl,
-  InputLabel,
-  Input,
-  FormHelperText,
-  Button,
-  Typography,
 } from '@material-ui/core';
-import * as React from 'react';
-import axios from 'axios';
+
 import { IUser } from '../../interfaces/User';
+import axios from 'axios';
 
 interface IFormState {
   toggleText: string;
@@ -131,7 +133,7 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
 class AuthFormContainer extends React.Component<
   IAuthFormContainerProps,
   IAuthFormContainerState
-> {
+  > {
   public state = {
     nickname: '',
     email: '',
@@ -193,6 +195,7 @@ class AuthFormContainer extends React.Component<
           nickname,
           email: userEmail,
           phone,
+          profileUrl: fakerStatic.image.avatar()
         });
       })
       .catch((err) => {
@@ -227,6 +230,7 @@ class AuthFormContainer extends React.Component<
           nickname: userNickname,
           email: userEmail,
           phone,
+          profileUrl: fakerStatic.image.avatar()
         });
         signUp.state = SignUpState.SIGNED_UP;
         this.setState({ states });

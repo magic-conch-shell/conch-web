@@ -8,7 +8,7 @@ import {
   StyleRulesCallback,
   Theme,
   WithStyles,
-  withStyles
+  withStyles,
 } from '@material-ui/core';
 import { Redirect, RouteComponentProps, withRouter } from 'react-router-dom';
 
@@ -21,7 +21,7 @@ import { darken } from '@material-ui/core/styles/colorManipulator';
 export interface INavBarAccountProps extends WithStyles<typeof styles> {
   anchorEl: HTMLElement | undefined;
   handleClick: (event: any) => void;
-  handleClose: () => void;
+  handleClose: (callback?: () => void) => void;
   handleSignOut: () => void;
   isTransparent: boolean;
   theme: ThemeTypes;
@@ -36,13 +36,13 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
   root: {},
   avatar: {
     margin: 'auto',
-    borderRadius: '5px'
+    borderRadius: '5px',
   },
   accountMenuButtonContainer: {
     display: 'flex',
     '& .root:hover': {
-      backgroundColor: 'rgba(0,0,0,0)'
-    }
+      backgroundColor: 'rgba(0,0,0,0)',
+    },
   },
   accountMenuButton: {
     color: theme.palette.primary.main,
@@ -67,15 +67,15 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
     cursor: 'pointer',
     padding: theme.spacing.unit / 2,
     '&:hover': {
-      backgroundColor: darken(theme.palette.background.default, 0.1)
-    }
-  }
+      backgroundColor: darken(theme.palette.background.default, 0.1),
+    },
+  },
 });
 
 class NavBarAccount extends React.Component<
   RouteComponentProps<any> & INavBarAccountProps,
   INavBarAccountState
-  > {
+> {
   public render() {
     const {
       anchorEl,
@@ -95,41 +95,43 @@ class NavBarAccount extends React.Component<
         )}
       >
         {location.pathname === '/login' ||
-          location.pathname === '/register' ? null : !user ? (
-            <div className={classes.accountMenuButtonContainer}>
-              <Button
-                variant="text"
-                className={classes.accountMenuButton}
-                onClick={() => <Redirect to="/login" />}
-              >
-                Log In
+        location.pathname === '/register' ? null : !user ? (
+          <div className={classes.accountMenuButtonContainer}>
+            <Button
+              variant="text"
+              className={classes.accountMenuButton}
+              onClick={() => <Redirect to="/login" />}
+            >
+              Log In
             </Button>
-              {/* <div className={classes.verticalDivider}>|</div> */}
-              {/* <Button variant="text" className={classes.accountMenuButton}>
+            {/* <div className={classes.verticalDivider}>|</div> */}
+            {/* <Button variant="text" className={classes.accountMenuButton}>
               Sign Up
             </Button> */}
+          </div>
+        ) : (
+          <>
+            <div className={classes.userAccount} onClick={handleClick}>
+              <Button className={classes.accountMenuButton}>
+                {user.nickname}
+              </Button>
+              <Avatar className={classes.avatar} src={user.avatar} />
             </div>
-          ) : (
-              <>
-                <div className={classes.userAccount} onClick={handleClick}>
-                  <Button className={classes.accountMenuButton}>
-                    {user.nickname}
-                  </Button>
-                  <Avatar className={classes.avatar} src={user.profileUrl} />
-                </div>
-                <Menu
-                  id="accountOptions-menu"
-                  anchorEl={anchorEl}
-                  open={Boolean(anchorEl)}
-                  onClose={handleClose}
-                >
-                  <Link to="/profile">
-                    <MenuItem>Profile</MenuItem>
-                  </Link>
-                  <MenuItem onClick={handleSignOut}>Sign Out</MenuItem>
-                </Menu>
-              </>
-            )}
+            <Menu
+              id="accountOptions-menu"
+              anchorEl={anchorEl}
+              open={Boolean(anchorEl)}
+              onClose={() => handleClose()}
+            >
+              <Link to="/profile" onClick={() => handleClose()}>
+                <MenuItem>Profile</MenuItem>
+              </Link>
+              <MenuItem onClick={() => handleClose(handleSignOut)}>
+                Sign Out
+              </MenuItem>
+            </Menu>
+          </>
+        )}
       </div>
     );
   }

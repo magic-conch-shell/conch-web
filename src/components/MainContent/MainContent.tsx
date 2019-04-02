@@ -22,10 +22,15 @@ import MainPage from '../Pages/MainPage';
 import ProfilePage from '../Pages/ProfilePage';
 import ResultPage from '../Pages/ResultPage';
 import classnames from 'classnames';
+import { ISettings } from '../../interfaces/Settings';
 
 export interface IMainContentProps {
+  editUser: (user: IUser) => void;
   handleSignIn: (user: IUser) => void;
+  setTimeZone: (timeZone: string) => void;
+  toggleTheme: () => void;
   user: IUser | null;
+  userSettings: ISettings;
 }
 
 export interface IMainContentState {
@@ -54,14 +59,14 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
   switchContainer: {
     height: '100%',
     width: '100%',
-    display: 'flex'
+    display: 'flex',
   },
 });
 
 class MainContent extends React.Component<
   RouteComponentProps<any> & WithStyles<any> & IMainContentProps,
   IMainContentState
-  > {
+> {
   public state = {
     loading: true,
   };
@@ -85,8 +90,14 @@ class MainContent extends React.Component<
   };
 
   public render() {
-    const { classes, location, user } = this.props;
-    console.log(location);
+    const {
+      classes,
+      editUser,
+      setTimeZone,
+      toggleTheme,
+      user,
+      userSettings,
+    } = this.props;
     const { loading } = this.state;
     const homePage = () => {
       return <MainPage handleFinishLoading={this.handleFinishedLoading} />;
@@ -103,12 +114,22 @@ class MainContent extends React.Component<
       props: RouteComponentProps<any, StaticContext, any>
     ) => {
       const { questionId } = props.match.params;
-      console.log(questionId);
       return <ResultPage questionId={questionId} />;
     };
 
     const profilePage = () => {
-      return user ? <ProfilePage handleFinishLoading={this.handleFinishedLoading} user={user} /> : <Redirect to="/login" />;
+      return user ? (
+        <ProfilePage
+          editUser={editUser}
+          handleFinishLoading={this.handleFinishedLoading}
+          setTimeZone={setTimeZone}
+          toggleTheme={toggleTheme}
+          user={user}
+          userSettings={userSettings}
+        />
+      ) : (
+        <Redirect to="/login" />
+      );
     };
 
     return (
@@ -125,7 +146,7 @@ class MainContent extends React.Component<
               loading && classes.hidden
             )}
           >
-            <Switch location={location}>
+            <Switch>
               <Route
                 exact={true}
                 path="/"

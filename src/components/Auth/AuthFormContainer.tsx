@@ -133,7 +133,7 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
 class AuthFormContainer extends React.Component<
   IAuthFormContainerProps,
   IAuthFormContainerState
-  > {
+> {
   public state = {
     nickname: '',
     email: '',
@@ -175,6 +175,7 @@ class AuthFormContainer extends React.Component<
   };
 
   public signIn = () => {
+    console.log('[signIn]');
     const { handleSignIn } = this.props;
     const { email, password, states } = this.state;
     const { signIn } = states;
@@ -188,14 +189,15 @@ class AuthFormContainer extends React.Component<
       },
     })
       .then((result) => {
+        console.log('[signIn].then');
         const { data } = result;
-        const { id, nickname, email: userEmail, phone } = data;
+        const { id, avatar, nickname, email: userEmail, phone } = data;
         handleSignIn({
           id,
           nickname,
           email: userEmail,
           phone,
-          profileUrl: fakerStatic.image.avatar()
+          avatar,
         });
       })
       .catch((err) => {
@@ -224,13 +226,19 @@ class AuthFormContainer extends React.Component<
     })
       .then((result) => {
         const { data } = result;
-        const { id, nickname: userNickname, email: userEmail, phone } = data;
+        const {
+          id,
+          avatar,
+          nickname: userNickname,
+          email: userEmail,
+          phone,
+        } = data;
         handleSignIn({
           id,
           nickname: userNickname,
           email: userEmail,
           phone,
-          profileUrl: fakerStatic.image.avatar()
+          avatar,
         });
         signUp.state = SignUpState.SIGNED_UP;
         this.setState({ states });

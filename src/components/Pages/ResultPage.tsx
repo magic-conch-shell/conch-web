@@ -18,9 +18,8 @@ export interface IResultPageState {
 
 const styles: StyleRulesCallback<any> = (theme: Theme) => ({
   root: {
-    height: 'calc(100% + 90px)',
+    height: '100%',
     width: '100%',
-    marginTop: '-90px',
     display: 'flex',
   },
 });

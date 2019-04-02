@@ -8,23 +8,14 @@ import {
 import * as React from 'react';
 import axios from 'axios';
 import Result from './Result';
-
-export interface IResult {
-  content: string;
-  created_at: string;
-  id: number;
-  solved: boolean;
-  title: string;
-  updated_at: string;
-  user_id: number;
-}
+import { IQuestion } from '../../interfaces/Question';
 
 export interface IResultContainerProps extends WithStyles<typeof styles> {
   questionId: string;
 }
 
 export interface IResultContainerState {
-  result: IResult;
+  question: IQuestion;
 }
 
 const styles: StyleRulesCallback<any> = (theme: Theme) => ({
@@ -36,7 +27,7 @@ class ResultContainer extends React.Component<
   IResultContainerState
 > {
   public state = {
-    result: {} as IResult,
+    question: {} as IQuestion,
   };
 
   public componentDidMount() {
@@ -50,7 +41,7 @@ class ResultContainer extends React.Component<
         })
           .then((result) => {
             const { data } = result;
-            this.setState({ result: data }, () => {
+            this.setState({ question: data }, () => {
               if (!data.solved) {
                 console.log(
                   `Question is not solved yet... checking again in ${INTERVAL} seconds`
@@ -68,11 +59,11 @@ class ResultContainer extends React.Component<
   }
 
   public render() {
-    const { result } = this.state;
+    const { question } = this.state;
     const { classes } = this.props;
     return (
       <Grid item={true} xs={10} sm={6} md={4} lg={4} className={classes.root}>
-        <Result result={result} />
+        <Result result={question} />
       </Grid>
     );
   }

@@ -13,9 +13,8 @@ import { IUser } from '../../interfaces/User';
 import MainContent from '../MainContent/MainContent';
 import NavBar from '../NavBar/NavBar';
 import NavBarAccount from '../NavBar/NavBarAccount';
-import { ThemeTypes } from '../AppContainer/AppContainer';
 import axios from 'axios';
-import faker from 'faker';
+import { ISettings } from '../../interfaces/Settings';
 
 export interface IAppState {
   loading: boolean;
@@ -25,7 +24,8 @@ export interface IAppState {
 
 export interface IAppProps {
   toggleTheme: () => void;
-  theme: ThemeTypes;
+  setTimeZone: (timeZone: string) => void;
+  userSettings: ISettings;
 }
 
 const styles: StyleRulesCallback<any> = (theme: Theme) => ({
@@ -48,7 +48,7 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
 class App extends Component<
   RouteComponentProps<any> & WithStyles<any> & IAppProps,
   IAppState
-  > {
+> {
   public state = {
     loading: true,
     navBarAnchorEl: undefined,
@@ -63,13 +63,13 @@ class App extends Component<
     })
       .then((result) => {
         const { data } = result;
-        const { id, nickname, email, phone } = data;
+        const { id, avatar, nickname, email, phone } = data;
         this.handleSignIn({
           id,
           nickname,
           email,
           phone,
-          profileUrl: faker.image.avatar(),
+          avatar,
         });
       })
       .catch((err) => console.log(err))
@@ -84,12 +84,18 @@ class App extends Component<
     this.setState({ navBarAnchorEl: event.currentTarget });
   };
 
-  public navBarHandleClose = () => {
-    this.setState({ navBarAnchorEl: undefined });
+  public navBarHandleClose = (callback?: () => void) => {
+    this.setState({ navBarAnchorEl: undefined }, callback);
   };
 
   public handleSignIn = (user: IUser) => {
+    console.log('handle signIn');
+    if (user.avatar === '') {
+      user.avatar =
+        'https://www.wittenberg.edu/sites/default/files/2017-11/nouser_0.jpg';
+    }
     this.setState({ user }, () => {
+      console.log('push homepage');
       this.props.history.push('/');
     });
   };
@@ -105,16 +111,27 @@ class App extends Component<
       });
   };
 
+  public editUser = (newUser: IUser) => {
+    this.setState({ user: newUser });
+  };
+
   public render() {
     const { navBarAnchorEl, loading, user } = this.state;
-    const { classes, location, toggleTheme, theme } = this.props;
+    const {
+      classes,
+      location,
+      setTimeZone,
+      toggleTheme,
+      userSettings,
+    } = this.props;
+    const { themeType } = userSettings;
     const isTransparent = location.pathname === '/';
     return (
       <div className={classes.root}>
         <NavBar
           isTransparent={isTransparent}
           toggleTheme={toggleTheme}
-          theme={theme}
+          theme={themeType}
         >
           <NavBarAccount
             anchorEl={navBarAnchorEl}
@@ -122,7 +139,7 @@ class App extends Component<
             handleClose={this.navBarHandleClose}
             handleSignOut={this.handleSignOut}
             isTransparent={isTransparent}
-            theme={theme}
+            theme={themeType}
             user={user}
           />
         </NavBar>
@@ -131,9 +148,16 @@ class App extends Component<
             <CircularProgress className={classes.loading} size={96} />
           </div>
         ) : (
-            <MainContent user={user} handleSignIn={this.handleSignIn} />
-          )}
-        <FooterContainer theme={theme} toggleTheme={toggleTheme} />
+          <MainContent
+            user={user}
+            userSettings={userSettings}
+            handleSignIn={this.handleSignIn}
+            setTimeZone={setTimeZone}
+            toggleTheme={toggleTheme}
+            editUser={this.editUser}
+          />
+        )}
+        <FooterContainer theme={themeType} toggleTheme={toggleTheme} />
       </div>
     );
   }

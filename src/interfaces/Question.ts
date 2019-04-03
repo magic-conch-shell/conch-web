@@ -14,5 +14,6 @@ export interface IQuestion {
   title: string;
   updated_at: string;
   user_id: number;
-  status?: ResultStatusTypes;
+  tags: number[];
+  status: ResultStatusTypes;
 }

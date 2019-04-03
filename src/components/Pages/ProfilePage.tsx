@@ -42,7 +42,7 @@ class ProfilePage extends React.Component<
     this.props.handleFinishLoading();
   }
   public render() {
-    const { classes, ...rest } = this.props;
+    const { classes, handleFinishLoading, ...rest } = this.props;
     return (
       <div className={classes.root}>
         <Grid container={true} justify={'center'}>

@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { DirectUpload } from 'activestorage';
 
 import {
   Avatar,
@@ -26,6 +27,7 @@ export interface IProfileContainerProps extends WithStyles<typeof styles> {
 
 export interface IProfileContainerState {
   currentTab: number;
+  loading: boolean;
 }
 
 const styles: StyleRulesCallback<any> = (theme: Theme) => ({
@@ -94,13 +96,36 @@ class ProfileContainer extends React.Component<
     super(props);
     this.state = {
       currentTab: 0,
+      loading: true,
     };
     this.inputRef = React.createRef();
   }
 
-  public componentDidMount() {
-    console.log(this.inputRef);
-  }
+  public uploadFile = (file: any) => {
+    // your form needs the file_field direct_upload: true, which
+    //  provides data-direct-upload-url
+    const url = this.inputRef.current.dataset.directUploadUrl;
+    const upload = new DirectUpload(file, url);
+
+    upload.create((error: any, blob: any) => {
+      if (error) {
+        console.log(error);
+      } else {
+        axios({
+          method: 'put',
+          url: `/api/users/${this.props.user.id}`,
+          params: {
+            avatar: blob.signed_id,
+          },
+        })
+          .then((result) => {
+            console.log(result);
+            // make request to upload
+          })
+          .catch((err) => console.log(err));
+      }
+    });
+  };
 
   public changeCurrentTab = (newTabIndex: number) => {
     this.setState({ currentTab: newTabIndex });
@@ -110,41 +135,39 @@ class ProfileContainer extends React.Component<
     this.inputRef.current.click();
   };
 
+  public handleFinishLoading = () => {
+    console.log('Finished loading!');
+    this.isNotLoading();
+  };
+
+  public handleStartLoading = () => {
+    console.log('Loading data!');
+    this.isLoading();
+  };
+
+  public isLoading = () => {
+    this.setState({ loading: true });
+  };
+
+  public isNotLoading = () => {
+    this.setState({ loading: false }, () =>
+      console.log('loading set to false')
+    );
+  };
+
   public handleAvatarChange = (ev: any) => {
     if (ev.target.files[0]) {
-      // const file = ev.target.files[0];
-      // const s3 = new AWS.S3({ apiVersion: '2016-11-15' });
-      // s3.config.update({
-      //   accessKeyId: process.env.REACT_APP_AWS_API_KEY,
-      //   secretAccessKey: process.env.REACT_APP_AWS_API_SECRET,
-      // });
-
-      // s3.upload(
-      //   { Bucket: 'conch-avatars', Key: shortid(), Body: file },
-      //   {},
-      //   (err: any, data: any) => {
-      //     console.log(err);
-      //     console.log(data);
-      //   }
-      // );
-      axios({
-        method: 'get',
-        url: '/requestS3Token',
-      })
-        .then((result) => {
-          console.log(result);
-          // make request to upload
-        })
-        .catch((err) => console.log(err));
+      const file = ev.target.files[0];
+      this.uploadFile(file);
     }
   };
 
   public render() {
-    const { currentTab } = this.state;
+    const { currentTab, loading } = this.state;
     const { classes, user, ...rest } = this.props;
     return (
       <Grid item={true} xs={11} className={classes.root}>
-        <Grid container={true} className={classes.full} spacing={24}>
+        <Grid container={true} spacing={24}>
           <Grid item={true} xs={12}>
             <div className={classes.profileHeader}>
               <div
@@ -158,6 +181,7 @@ class ProfileContainer extends React.Component<
                   style={{ display: 'none' }}
                   onChange={this.handleAvatarChange}
                   accept="image/*"
+                  data-direct-upload-url="/rails/active_storage/direct_uploads"
                 />
               </div>
               <div className={classes.profileHeaderText}>
@@ -166,15 +190,21 @@ class ProfileContainer extends React.Component<
               </div>
             </div>
           </Grid>
-          <Grid item={true} xs={4} md={2} className={classes.full}>
+          <Grid item={true} xs={4} md={2}>
             <ProfileTabList
               currentTab={currentTab}
               handleClick={this.changeCurrentTab}
               tabs={PROFILE_TABS}
             />
           </Grid>
-          <Grid item={true} xs={8} md={10} className={classes.full}>
-            <ProfileContent currentTab={currentTab} user={user} {...rest} />
+          <Grid item={true} xs={8} md={10}>
+            <ProfileContent
+              currentTab={currentTab}
+              handleFinishLoading={this.handleFinishLoading}
+              loading={loading}
+              user={user}
+              {...rest}
+            />
           </Grid>
         </Grid>
       </Grid>

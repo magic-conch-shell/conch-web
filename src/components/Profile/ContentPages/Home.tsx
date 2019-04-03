@@ -27,12 +27,12 @@ export interface IHomeProps extends WithStyles<typeof styles> {
 
 export interface IHomeState {
   questions: IQuestion[];
+  tags: Array<{ id: number; name: string }>;
 }
 
 const styles: StyleRulesCallback<any> = (theme: Theme) => ({
   root: {
     padding: theme.spacing.unit * 2,
-    maxHeight: '400px',
   },
   contentContainer: {
     color: theme.palette.text.primary,
@@ -46,6 +46,14 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
   tableRow: {
     cursor: 'pointer',
   },
+  chip: {
+    backgroundColor: 'rgba(0, 0, 0, 0)',
+    borderColor: theme.palette.primary.main,
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    marginRight: theme.spacing.unit / 2,
+    marginBottom: theme.spacing.unit / 2,
+  },
 });
 
 class Home extends React.Component<
@@ -54,6 +62,7 @@ class Home extends React.Component<
 > {
   public state = {
     questions: [] as IQuestion[],
+    tags: [] as Array<{ id: number; name: string }>,
   };
   public componentDidMount() {
     const { handleFinishLoading, user } = this.props;
@@ -63,14 +72,36 @@ class Home extends React.Component<
     })
       .then((result) => {
         const { data } = result;
+        console.log(data);
         this.setState({ questions: data });
       })
       .catch((err) => console.log(err))
-      .finally(() => handleFinishLoading());
+      .finally(() => {
+        console.log('call handleFinishLoading');
+        handleFinishLoading();
+      });
+
+    axios('/api/tags').then((result) => {
+      const { data } = result;
+      this.setState({ tags: data });
+    });
   }
 
   public handleLink = (id: number) => {
     this.props.history.push(`/results/${id}`);
+  };
+
+  public getTagById = (id: number) => {
+    const { tags } = this.state;
+    const len = tags.length;
+    let result = {} as { id: number; name: string };
+    for (let i = 0; i < len; i += 1) {
+      if (tags[i].id === id) {
+        result = tags[i];
+        break;
+      }
+    }
+    return result;
   };
 
   public render() {
@@ -79,7 +110,7 @@ class Home extends React.Component<
     return (
       <div className={classes.root}>
         <Grid container={true} spacing={8} className={classes.contentContainer}>
-          <Grid item={true} xs={6} md={8}>
+          <Grid item={true} xs={true} md={true}>
             <Paper>
               <Table className={classes.table}>
                 <TableHead>
@@ -98,6 +129,7 @@ class Home extends React.Component<
                       key={index}
                       onClick={() => this.handleLink(question.id)}
                       className={classes.tableRow}
+                      hover={true}
                     >
                       <TableCell>
                         {new Date(question.created_at).toLocaleDateString()}
@@ -108,13 +140,15 @@ class Home extends React.Component<
                       <TableCell>{question.title}</TableCell>
                       <TableCell>{question.content}</TableCell>
                       <TableCell>
-                        {['Test Tag', 'Other Test Tag', 'Baseketball'].map(
-                          (tag, i) => (
-                            <Chip key={i} label={tag} />
-                          )
-                        )}
+                        {question.tags.map((tag, i) => (
+                          <Chip
+                            key={i}
+                            className={classes.chip}
+                            label={this.getTagById(tag).name}
+                          />
+                        ))}
                       </TableCell>
-                      <TableCell>{question.solved}</TableCell>
+                      <TableCell>{question.status}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>

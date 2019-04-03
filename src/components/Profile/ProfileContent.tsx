@@ -18,6 +18,8 @@ import { ISettings } from '../../interfaces/Settings';
 export interface IProfileContentProps extends WithStyles<typeof styles> {
   currentTab: number;
   editUser: (user: IUser) => void;
+  handleFinishLoading: () => void;
+  loading: boolean;
   setTimeZone: (timeZone: string) => void;
   toggleTheme: () => void;
   user: IUser;
@@ -25,7 +27,7 @@ export interface IProfileContentProps extends WithStyles<typeof styles> {
 }
 
 export interface IProfileContentState {
-  loading: boolean;
+  placeholder?: string;
 }
 
 const styles: StyleRulesCallback<any> = (theme: Theme) => ({
@@ -55,41 +57,23 @@ class ProfileContent extends React.Component<
   IProfileContentProps,
   IProfileContentState
 > {
-  public state = {
-    loading: true,
-  };
-
-  public handleFinishLoading = () => {
-    console.log('Finished loading!');
-    this.isNotLoading();
-  };
-
-  public handleStartLoading = () => {
-    console.log('Loading data!');
-    this.isLoading();
-  };
-
-  public isLoading = () => {
-    this.setState({ loading: true });
-  };
-
-  public isNotLoading = () => {
-    this.setState({ loading: false });
-  };
-
   public getTabContent = () => {
-    const { classes, currentTab, user, ...rest } = this.props;
+    const {
+      classes,
+      currentTab,
+      handleFinishLoading,
+      user,
+      ...rest
+    } = this.props;
 
     switch (currentTab) {
       case 0:
-        return (
-          <Home handleFinishLoading={this.handleFinishLoading} user={user} />
-        );
+        return <Home handleFinishLoading={handleFinishLoading} user={user} />;
       case 1:
         return (
           <Settings
             user={user}
-            handleFinishLoading={this.handleFinishLoading}
+            handleFinishLoading={handleFinishLoading}
             {...rest}
           />
         );
@@ -99,8 +83,7 @@ class ProfileContent extends React.Component<
   };
 
   public render() {
-    const { loading } = this.state;
-    const { classes } = this.props;
+    const { classes, loading } = this.props;
     return (
       <Paper className={classes.full} elevation={4}>
         {loading && (

@@ -1,6 +1,15 @@
 import * as React from 'react';
 
-import { List, ListItem, ListItemText, Paper, StyleRulesCallback, Theme, WithStyles, withStyles } from '@material-ui/core';
+import {
+  List,
+  ListItem,
+  ListItemText,
+  Paper,
+  StyleRulesCallback,
+  Theme,
+  WithStyles,
+  withStyles,
+} from '@material-ui/core';
 import { darken, lighten } from '@material-ui/core/styles/colorManipulator';
 
 import classnames from 'classnames';
@@ -22,32 +31,50 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
     borderLeftWidth: theme.spacing.unit / 2,
     borderLeftColor: 'rgba(0,0,0,0)',
     borderLeftStyle: 'solid',
-    cursor: 'pointer'
+    cursor: 'pointer',
   },
   listItemHoverable: {
     '&:hover': {
       backgroundColor: darken(theme.palette.background.paper, 0.1),
-    }
+    },
   },
   profileTabList: {
     paddingTop: '0px',
-    paddingBottom: '0px'
+    paddingBottom: '0px',
   },
-  root: {},
+  root: {
+    position: 'sticky',
+    top: '110px',
+  },
   selected: {
-    backgroundColor: theme.palette.type === 'light' ? lighten(theme.palette.primary.main, 0.75) : darken(theme.palette.primary.main, 0.75),
+    backgroundColor:
+      theme.palette.type === 'light'
+        ? lighten(theme.palette.primary.main, 0.75)
+        : darken(theme.palette.primary.main, 0.75),
     borderLeftColor: theme.palette.primary.main,
   },
 });
 
-class ProfileTabList extends React.Component<IProfileTabListProps, IProfileTabListState> {
+class ProfileTabList extends React.Component<
+  IProfileTabListProps,
+  IProfileTabListState
+> {
   public render() {
     const { classes, currentTab, handleClick, tabs } = this.props;
     return (
-      <Paper elevation={4}>
+      <Paper className={classes.root} elevation={4}>
         <List className={classes.profileTabList}>
           {tabs.map((tab, index) => (
-            <ListItem key={index} onClick={() => handleClick(index)} className={classnames(currentTab === index ? classes.selected : classes.listItemHoverable, classes.listItem)}>
+            <ListItem
+              key={index}
+              onClick={() => handleClick(index)}
+              className={classnames(
+                currentTab === index
+                  ? classes.selected
+                  : classes.listItemHoverable,
+                classes.listItem
+              )}
+            >
               <ListItemText primary={tab} />
             </ListItem>
           ))}

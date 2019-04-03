@@ -1,5 +1,3 @@
-import * as React from 'react';
-
 import {
   IconButton,
   StyleRulesCallback,
@@ -8,9 +6,8 @@ import {
   WithStyles,
   withStyles,
 } from '@material-ui/core';
-
-import AddCircleOutlined from '@material-ui/icons/AddCircleOutlined';
 import Send from '@material-ui/icons/Send';
+import * as React from 'react';
 import TextareaAutosize from 'react-textarea-autosize';
 
 export interface IMainSearchInputProps extends WithStyles<typeof styles> {
@@ -75,15 +72,6 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
   },
 });
 
-const IconButtonStates: { [key in InputState]: { tooltip: string } } = {
-  [InputState.DEFAULT]: {
-    tooltip: 'Expand',
-  },
-  [InputState.EXPANDED]: {
-    tooltip: 'Submit Question',
-  },
-};
-
 class MainSearchInput extends React.Component<
   IMainSearchInputProps,
   IMainSearchInputState
@@ -115,13 +103,7 @@ class MainSearchInput extends React.Component<
 
   public render() {
     const { disableInputIcon } = this.state;
-    const {
-      classes,
-      content,
-      handleSubmit,
-      inputState,
-      toggleInputState,
-    } = this.props;
+    const { classes, content, handleSubmit, inputState } = this.props;
     return (
       <>
         <TextareaAutosize
@@ -136,19 +118,14 @@ class MainSearchInput extends React.Component<
           value={content}
           onChange={this._handleChange}
         />
-        <Tooltip title={IconButtonStates[inputState].tooltip} placement="right">
+        <Tooltip title={'Submit Question'} placement="right">
           <IconButton
             className={classes.inputIcon}
-            onClick={
-              inputState === InputState.DEFAULT
-                ? toggleInputState
-                : handleSubmit
-            }
+            onClick={handleSubmit}
             disabled={disableInputIcon}
             tabIndex={-1}
           >
-            {inputState === InputState.DEFAULT && <AddCircleOutlined />}
-            {inputState === InputState.EXPANDED && <Send />}
+            <Send />
           </IconButton>
         </Tooltip>
       </>

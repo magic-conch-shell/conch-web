@@ -38,9 +38,16 @@ enum SubmissionState {
   SUBMITTED,
 }
 
+const TRANSITION_DURATION = 750;
+
 const OpacityContainer = posed.div({
   hidden: { opacity: 0 },
   visible: { opacity: 1 },
+});
+
+const LongOpacityContainer = posed.div({
+  hidden: { opacity: 0, transition: { duration: TRANSITION_DURATION } },
+  visible: { opacity: 1, transition: { duration: TRANSITION_DURATION } },
 });
 
 const HeightContainer = posed.div({
@@ -116,23 +123,30 @@ class MainSearch extends React.Component<IMainSearchProps, IMainSearchState> {
     });
   }
 
-  public handleSubmit = () => {
+  public handleSubmit = (ev?: any) => {
+    if (ev) {
+      ev.preventDefault();
+    }
     const { content, title, selectedTags } = this.state;
-    axios({
-      method: 'post',
-      url: '/api/questions',
-      params: {
-        title,
-        content,
-        tags: selectedTags,
-      },
-    })
-      .then((result) => {
-        const { data } = result;
-        const { id } = data;
-        this.setSubmissionStateToSubmitted(id);
+    if (content.length > 0 && selectedTags.length > 0) {
+      axios({
+        method: 'post',
+        url: '/api/questions',
+        params: {
+          title,
+          content,
+          tags: selectedTags,
+        },
       })
-      .catch((err) => console.log(err));
+        .then((result) => {
+          const { data } = result;
+          const { id } = data;
+          this.setSubmissionStateToSubmitted(id);
+        })
+        .catch((err) => console.log(err));
+    } else {
+      alert('Fill in the form! Replace me with actual error text in the form!');
+    }
   };
 
   public toggleInputState = () => {
@@ -149,9 +163,11 @@ class MainSearch extends React.Component<IMainSearchProps, IMainSearchState> {
 
   public setSubmissionStateToSubmitted = (questionId: number) => {
     const { history } = this.props;
-    this.setState({ submissionState: SubmissionState.SUBMITTED }, () => {
-      history.push(`/results/${questionId}`);
-    });
+    this.setState({ submissionState: SubmissionState.SUBMITTED }, () =>
+      setTimeout(() => {
+        history.push(`/results/${questionId}`);
+      }, TRANSITION_DURATION)
+    );
   };
 
   public setHeightRef = () => {
@@ -178,56 +194,71 @@ class MainSearch extends React.Component<IMainSearchProps, IMainSearchState> {
   };
 
   public render() {
-    const { selectedTags, inputState, title, content, tags } = this.state;
+    const {
+      selectedTags,
+      inputState,
+      title,
+      content,
+      submissionState,
+      tags,
+    } = this.state;
     const { classes } = this.props;
     return (
-      <form className={classes.root}>
-        <OpacityContainer
-          pose={inputState === InputState.EXPANDED ? 'visible' : 'hidden'}
-        >
-          {inputState === InputState.EXPANDED && (
+      <LongOpacityContainer
+        className={classes.root}
+        pose={
+          submissionState === SubmissionState.DEFAULT ? 'visible' : 'hidden'
+        }
+      >
+        <form onSubmit={this.handleSubmit}>
+          <OpacityContainer
+            pose={inputState === InputState.EXPANDED ? 'visible' : 'hidden'}
+          >
+            {inputState === InputState.EXPANDED && (
+              <InputContainer>
+                <MainSearchTitle
+                  title={title}
+                  handleChange={this.handleChangeTitle}
+                />
+              </InputContainer>
+            )}
+          </OpacityContainer>
+          <HeightContainer
+            ref={this.heightRef}
+            onPoseComplete={() => {
+              this.setHeightRef();
+            }}
+            pose={inputState === InputState.EXPANDED ? 'expanded' : 'default'}
+          >
             <InputContainer>
-              <MainSearchTitle
-                title={title}
-                handleChange={this.handleChangeTitle}
+              <MainSearchInput
+                inputState={inputState}
+                content={content}
+                handleChange={this.handleChangeContent}
+                handleSubmit={this.handleSubmit}
+                toggleInputState={this.toggleInputState}
+                setInputStateToDefault={this.setInputStateToDefault}
+                setInputStateToExpanded={this.setInputStateToExpanded}
               />
             </InputContainer>
-          )}
-        </OpacityContainer>
-        <HeightContainer
-          ref={this.heightRef}
-          onPoseComplete={() => {
-            this.setHeightRef();
-          }}
-          pose={inputState === InputState.EXPANDED ? 'expanded' : 'default'}
-        >
-          <InputContainer>
-            <MainSearchInput
-              inputState={inputState}
-              content={content}
-              handleChange={this.handleChangeContent}
-              handleSubmit={this.handleSubmit}
-              toggleInputState={this.toggleInputState}
-              setInputStateToDefault={this.setInputStateToDefault}
-              setInputStateToExpanded={this.setInputStateToExpanded}
-            />
-          </InputContainer>
-        </HeightContainer>
-        <div style={{ height: '50px' }}>
-          <InputContainer>
-            <MainSearchSelect
-              handleSelectTag={this.handleSelectTag}
-              selectedTags={selectedTags}
-              tags={tags}
-            />
-          </InputContainer>
-        </div>
-        <MainSearchTagContainer
-          handleDeleteTag={this.handleDelete}
-          selectedTags={selectedTags}
-          tags={tags}
-        />
-      </form>
+          </HeightContainer>
+          <div style={{ height: '50px' }}>
+            <InputContainer>
+              <MainSearchSelect
+                handleSelectTag={this.handleSelectTag}
+                selectedTags={selectedTags}
+                tags={tags}
+              />
+            </InputContainer>
+          </div>
+          <MainSearchTagContainer
+            handleDeleteTag={this.handleDelete}
+            selectedTags={selectedTags}
+            tags={tags}
+          />
+          <button type="submit" style={{ display: 'none' }} />
+        </form>
+      </LongOpacityContainer>
     );
   }
 }

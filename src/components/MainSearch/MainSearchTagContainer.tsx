@@ -28,7 +28,7 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
     zIndex: -1,
   },
   selectedTag: {
-    backgroundColor: theme.palette.background.default,
+    backgroundColor: 'rgba(0,0,0,0)',
     borderColor: theme.palette.primary.main,
     borderWidth: '1px',
     borderStyle: 'solid',

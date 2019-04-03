@@ -19,7 +19,7 @@ export interface INavBarProps {
 }
 
 export interface INavBarState {
-  placeholder?: string;
+  scrollTop: number;
 }
 
 export const DRAWER_WIDTH = 280;
@@ -34,6 +34,7 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
     height: '90px',
     paddingLeft: theme.spacing.unit * 2,
     paddingRight: theme.spacing.unit * 2,
+    backgroundColor: theme.palette.background.paper,
   },
   appBarShift: {
     marginLeft: DRAWER_WIDTH,
@@ -87,14 +88,29 @@ class NavBar extends React.Component<
   WithStyles<any> & INavBarProps,
   INavBarState
 > {
+  public state = {
+    scrollTop: 0,
+  };
+
+  public componentDidMount() {
+    window.addEventListener('scroll', () => {
+      this.setState({ scrollTop: document.documentElement.scrollTop });
+    });
+  }
+
   public render() {
-    const { classes, theme } = this.props;
+    const { scrollTop } = this.state;
+    const { classes, isTransparent, theme } = this.props;
+    const localIsTransparent = isTransparent || scrollTop === 0;
     const logoColor = theme === ThemeTypes.LIGHT ? 'purple' : 'white';
     return (
       <div className={classes.root}>
         <AppBar
           position="fixed"
-          className={classNames(classes.appBar, classes.appBarTransparent)}
+          className={classNames(
+            classes.appBar,
+            localIsTransparent && classes.appBarTransparent
+          )}
         >
           <Toolbar className={classes.toolbar}>
             <Link to="/">

@@ -68,7 +68,6 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
 class Result extends React.Component<IResultProps, IResultState> {
   public render() {
     const { classes, result } = this.props;
-    result.status = ResultStatusTypes.SUBMITTED;
     return (
       <Paper className={classes.root} elevation={4}>
         <div className={classes.resultHeader}>

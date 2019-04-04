@@ -2,15 +2,14 @@ import {
   AppBar,
   StyleRulesCallback,
   Theme,
-  Toolbar,
   WithStyles,
   withStyles,
 } from '@material-ui/core';
 import classNames from 'classnames';
 import * as React from 'react';
-import { Link } from 'react-router-dom';
 
 import { ThemeTypes } from '../AppContainer/AppContainer';
+import NavBarToolbar from './NavBarToolbar';
 
 export interface INavBarProps {
   isTransparent: boolean;
@@ -50,9 +49,6 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
   },
   appBarLogo: {
     height: '64px',
-  },
-  root: {
-    height: '90px',
   },
   toolbar: {
     display: 'flex',
@@ -100,31 +96,19 @@ class NavBar extends React.Component<
 
   public render() {
     const { scrollTop } = this.state;
-    const { classes, isTransparent, theme } = this.props;
+    const { children, classes, isTransparent, theme } = this.props;
     const localIsTransparent = isTransparent || scrollTop === 0;
     const logoColor = theme === ThemeTypes.LIGHT ? 'purple' : 'white';
     return (
-      <div className={classes.root}>
-        <AppBar
-          position="fixed"
-          className={classNames(
-            classes.appBar,
-            localIsTransparent && classes.appBarTransparent
-          )}
-        >
-          <Toolbar className={classes.toolbar}>
-            <Link to="/">
-              <img
-                className={classes.appBarLogo}
-                src={`https://s3.ca-central-1.amazonaws.com/conch-resources/conch_logo_${logoColor}.png`}
-              />
-            </Link>
-            <div className={classes.marginLeftAuto}>
-              <div className={classes.actions}>{this.props.children}</div>
-            </div>
-          </Toolbar>
-        </AppBar>
-      </div>
+      <AppBar
+        position="fixed"
+        className={classNames(
+          classes.appBar,
+          localIsTransparent && classes.appBarTransparent
+        )}
+      >
+        <NavBarToolbar logoColor={logoColor}>{children}</NavBarToolbar>
+      </AppBar>
     );
   }
 }

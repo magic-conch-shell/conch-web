@@ -8,6 +8,7 @@ import {
 import Downshift from 'downshift';
 import * as React from 'react';
 import classnames from 'classnames';
+import posed from 'react-pose';
 
 export interface IMainSearchSelectProps {
   handleSelectTag: (tagId: number) => void;
@@ -18,6 +19,14 @@ export interface IMainSearchSelectProps {
 export interface IMainSearchSelectState {
   selectValue: string;
 }
+
+const MAIN_TRANSITION_DURATION = 450;
+// const CHILD_TRANSITION_DURATION = 50;
+
+const OpacityContainer = posed.div({
+  hidden: { opacity: 0, transition: { duration: MAIN_TRANSITION_DURATION } },
+  visible: { opacity: 1, transition: { duration: MAIN_TRANSITION_DURATION } },
+});
 
 const styles: StyleRulesCallback<any> = (theme: Theme) => ({
   root: {},
@@ -58,6 +67,10 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
   },
   highlighted: {
     backgroundColor: theme.palette.background.default,
+  },
+  selectMenu: {
+    marginTop: '5px',
+    opacity: 0,
   },
 });
 
@@ -109,44 +122,49 @@ class MainSearchSelect extends React.Component<
                   placeholder="Add a category"
                 />
                 <div {...getMenuProps()}>
-                  {isOpen && (
-                    <Paper className={classes.paper} elevation={4}>
-                      {tags
-                        .filter((tag) => !selectedTags.includes(tag.id))
-                        .filter((tag) => {
-                          const { name } = tag;
-                          const nameLower = name.toLocaleLowerCase();
-                          const result =
-                            !inputValueLower ||
-                            nameLower.includes(inputValueLower);
-                          return result;
-                        })
-                        .slice(0, 30)
-                        .map((t, index) => {
-                          const { id, name } = t;
-                          return (
-                            <li
-                              {...getItemProps({
-                                item: {
-                                  id,
-                                  name,
-                                },
-                              })}
-                              className={classnames(
-                                classes.listItem,
-                                highlightedIndex === index &&
-                                  classes.highlighted
-                              )}
-                              key={id}
-                              value={name}
-                              tabIndex={0}
-                            >
-                              {t.name}
-                            </li>
-                          );
-                        })}
-                    </Paper>
-                  )}
+                  <OpacityContainer
+                    pose={isOpen ? 'visible' : 'hidden'}
+                    className={classes.selectMenu}
+                  >
+                    {isOpen && (
+                      <Paper className={classes.paper} elevation={4}>
+                        {tags
+                          .filter((tag) => !selectedTags.includes(tag.id))
+                          .filter((tag) => {
+                            const { name } = tag;
+                            const nameLower = name.toLocaleLowerCase();
+                            const result =
+                              !inputValueLower ||
+                              nameLower.includes(inputValueLower);
+                            return result;
+                          })
+                          .slice(0, 30)
+                          .map((t, index) => {
+                            const { id, name } = t;
+                            return (
+                              <li
+                                {...getItemProps({
+                                  item: {
+                                    id,
+                                    name,
+                                  },
+                                })}
+                                className={classnames(
+                                  classes.listItem,
+                                  highlightedIndex === index &&
+                                    classes.highlighted
+                                )}
+                                key={id}
+                                value={name}
+                                tabIndex={0}
+                              >
+                                {t.name}
+                              </li>
+                            );
+                          })}
+                      </Paper>
+                    )}
+                  </OpacityContainer>
                 </div>
               </div>
             );

@@ -72,7 +72,6 @@ class Home extends React.Component<
     })
       .then((result) => {
         const { data } = result;
-        console.log(data);
         this.setState({ questions: data });
       })
       .catch((err) => console.log(err))
@@ -111,12 +110,11 @@ class Home extends React.Component<
       <div className={classes.root}>
         <Grid container={true} spacing={8} className={classes.contentContainer}>
           <Grid item={true} xs={true} md={true}>
-            <Paper>
-              <Table className={classes.table}>
+            <Paper elevation={4}>
+              <Table className={classes.table} padding="dense">
                 <TableHead>
                   <TableRow>
-                    <TableCell>Date Submitted</TableCell>
-                    <TableCell>Time Submitted</TableCell>
+                    <TableCell>Date</TableCell>
                     <TableCell>Title</TableCell>
                     <TableCell>Question</TableCell>
                     <TableCell>Tags</TableCell>
@@ -124,33 +122,40 @@ class Home extends React.Component<
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {questions.map((question, index) => (
-                    <TableRow
-                      key={index}
-                      onClick={() => this.handleLink(question.id)}
-                      className={classes.tableRow}
-                      hover={true}
-                    >
-                      <TableCell>
-                        {new Date(question.created_at).toLocaleDateString()}
-                      </TableCell>
-                      <TableCell>
-                        {new Date(question.created_at).toLocaleTimeString()}
-                      </TableCell>
-                      <TableCell>{question.title}</TableCell>
-                      <TableCell>{question.content}</TableCell>
-                      <TableCell>
-                        {question.tags.map((tag, i) => (
-                          <Chip
-                            key={i}
-                            className={classes.chip}
-                            label={this.getTagById(tag).name}
-                          />
-                        ))}
-                      </TableCell>
-                      <TableCell>{question.status}</TableCell>
-                    </TableRow>
-                  ))}
+                  {questions.map((question, index) => {
+                    const createdAt = new Date(question.created_at);
+                    return (
+                      <TableRow
+                        key={index}
+                        onClick={() => this.handleLink(question.id)}
+                        className={classes.tableRow}
+                        hover={true}
+                      >
+                        <TableCell>
+                          {`${createdAt.toLocaleDateString()}\n${createdAt.toLocaleTimeString()}`}
+                        </TableCell>
+                        <TableCell>
+                          {question.title.length > 0 &&
+                            `${question.title.substr(0, 20)}`}
+                          {question.title.length > 20 && '...'}
+                        </TableCell>
+                        <TableCell>
+                          {`${question.content.substr(0, 20)}`}
+                          {question.content.length > 20 && '...'}
+                        </TableCell>
+                        <TableCell>
+                          {question.tags.map((tag, i) => (
+                            <Chip
+                              key={i}
+                              className={classes.chip}
+                              label={this.getTagById(tag).name}
+                            />
+                          ))}
+                        </TableCell>
+                        <TableCell>{question.status}</TableCell>
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
             </Paper>

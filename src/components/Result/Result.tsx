@@ -39,6 +39,9 @@ const resultStatusText: { [key in ResultStatusTypes]: string } = {
 const styles: StyleRulesCallback<any> = (theme: Theme) => ({
   root: {
     padding: theme.spacing.unit * 2,
+    marginTop: 'auto',
+    marginBottom: 'auto',
+    width: '100%',
   },
   resultHeader: {
     textAlign: 'center',
@@ -105,15 +108,15 @@ class Result extends React.Component<IResultProps, IResultState> {
             {new Date(result.created_at).toLocaleTimeString()}
           </Typography>
           {/* <List>
-            {Object.keys(result).map((key) => {
-              const value = result[key];
-              return (
-                <ListItem key={key}>
-                  <ListItemText primary={`${key}: ${value}`} />
-                </ListItem>
-              );
-            })}
-          </List> */}
+              {Object.keys(result).map((key) => {
+                const value = result[key];
+                return (
+                  <ListItem key={key}>
+                    <ListItemText primary={`${key}: ${value}`} />
+                  </ListItem>
+                );
+              })}
+            </List> */}
         </div>
         {/* <div className={classes.resultAnim}>MAKE ME</div> */}
       </Paper>

@@ -9,12 +9,12 @@ import React, { Component } from 'react';
 import { RouteComponentProps, withRouter } from 'react-router';
 
 import FooterContainer from '../Footer/FooterContainer';
+import { ISettings } from '../../interfaces/Settings';
 import { IUser } from '../../interfaces/User';
 import MainContent from '../MainContent/MainContent';
 import NavBar from '../NavBar/NavBar';
 import NavBarAccount from '../NavBar/NavBarAccount';
 import axios from 'axios';
-import { ISettings } from '../../interfaces/Settings';
 
 export interface IAppState {
   loading: boolean;
@@ -48,7 +48,7 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
 class App extends Component<
   RouteComponentProps<any> & WithStyles<any> & IAppProps,
   IAppState
-> {
+  > {
   public state = {
     loading: true,
     navBarAnchorEl: undefined,
@@ -90,7 +90,7 @@ class App extends Component<
 
   public handleSignIn = (user: IUser) => {
     console.log('handle signIn');
-    if (user.avatar === '') {
+    if (!user.avatar || user.avatar === '') {
       user.avatar =
         'https://www.wittenberg.edu/sites/default/files/2017-11/nouser_0.jpg';
     }
@@ -148,15 +148,15 @@ class App extends Component<
             <CircularProgress className={classes.loading} size={96} />
           </div>
         ) : (
-          <MainContent
-            user={user}
-            userSettings={userSettings}
-            handleSignIn={this.handleSignIn}
-            setTimeZone={setTimeZone}
-            toggleTheme={toggleTheme}
-            editUser={this.editUser}
-          />
-        )}
+            <MainContent
+              user={user}
+              userSettings={userSettings}
+              handleSignIn={this.handleSignIn}
+              setTimeZone={setTimeZone}
+              toggleTheme={toggleTheme}
+              editUser={this.editUser}
+            />
+          )}
         <FooterContainer theme={themeType} toggleTheme={toggleTheme} />
       </div>
     );

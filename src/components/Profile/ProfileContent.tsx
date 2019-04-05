@@ -9,11 +9,12 @@ import {
   withStyles,
 } from '@material-ui/core';
 
-import classnames from 'classnames';
-import { IUser } from '../../interfaces/User';
 import Home from './ContentPages/Home';
-import Settings from './ContentPages/Settings';
 import { ISettings } from '../../interfaces/Settings';
+import { ITag } from '../../interfaces/Tag';
+import { IUser } from '../../interfaces/User';
+import Settings from './ContentPages/Settings';
+import classnames from 'classnames';
 
 export interface IProfileContentProps extends WithStyles<typeof styles> {
   currentTab: number;
@@ -21,6 +22,7 @@ export interface IProfileContentProps extends WithStyles<typeof styles> {
   handleFinishLoading: () => void;
   loading: boolean;
   setTimeZone: (timeZone: string) => void;
+  tags: ITag[];
   toggleTheme: () => void;
   user: IUser;
   userSettings: ISettings;
@@ -56,19 +58,20 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
 class ProfileContent extends React.Component<
   IProfileContentProps,
   IProfileContentState
-> {
+  > {
   public getTabContent = () => {
     const {
       classes,
       currentTab,
       handleFinishLoading,
+      tags,
       user,
       ...rest
     } = this.props;
 
     switch (currentTab) {
       case 0:
-        return <Home handleFinishLoading={handleFinishLoading} user={user} />;
+        return <Home handleFinishLoading={handleFinishLoading} tags={tags} user={user} />;
       case 1:
         return (
           <Settings

@@ -1,4 +1,7 @@
+import * as React from 'react';
+
 import {
+  Chip,
   Paper,
   StyleRulesCallback,
   Theme,
@@ -6,13 +9,14 @@ import {
   WithStyles,
   withStyles,
 } from '@material-ui/core';
-import * as React from 'react';
 
 import { IQuestion } from '../../interfaces/Question';
+import { ITag } from '../../interfaces/Tag';
 import InputContainer from '../Input/InputContainer';
 
 export interface IResultProps extends WithStyles<typeof styles> {
   result: IQuestion;
+  tags: ITag[];
 }
 
 export interface IResultState {
@@ -37,6 +41,14 @@ const resultStatusText: { [key in ResultStatusTypes]: string } = {
 };
 
 const styles: StyleRulesCallback<any> = (theme: Theme) => ({
+  chip: {
+    backgroundColor: 'rgba(0, 0, 0, 0)',
+    borderColor: theme.palette.primary.main,
+    borderWidth: '1px',
+    borderStyle: 'solid',
+    marginRight: theme.spacing.unit / 2,
+    marginBottom: theme.spacing.unit / 2,
+  },
   root: {
     padding: theme.spacing.unit * 2,
     marginTop: 'auto',
@@ -64,11 +76,24 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
     '&::placeholder': {
       opacity: 0.65,
       color: theme.palette.text.primary,
-    },
+    }
   },
 });
 
 class Result extends React.Component<IResultProps, IResultState> {
+  public getTagById = (id: number) => {
+    const { tags } = this.props;
+    const len = tags.length;
+    let result = {} as { id: number; name: string };
+    for (let i = 0; i < len; i += 1) {
+      if (tags[i].id === id) {
+        result = tags[i];
+        break;
+      }
+    }
+    return result;
+  };
+
   public render() {
     const { classes, result } = this.props;
     return (
@@ -102,21 +127,20 @@ class Result extends React.Component<IResultProps, IResultState> {
               className={classes.input}
             />
           </InputContainer>
+          {result.tags.map((tag) => {
+            return (
+              <Chip
+                key={tag}
+                className={classes.chip}
+                label={this.getTagById(tag).name}
+              />
+            );
+          })}
           <Typography align="right" variant="caption">
             <strong>Submitted:</strong>{' '}
             {new Date(result.created_at).toLocaleDateString()}{' '}
             {new Date(result.created_at).toLocaleTimeString()}
           </Typography>
-          {/* <List>
-              {Object.keys(result).map((key) => {
-                const value = result[key];
-                return (
-                  <ListItem key={key}>
-                    <ListItemText primary={`${key}: ${value}`} />
-                  </ListItem>
-                );
-              })}
-            </List> */}
         </div>
         {/* <div className={classes.resultAnim}>MAKE ME</div> */}
       </Paper>

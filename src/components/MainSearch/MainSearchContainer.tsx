@@ -1,15 +1,18 @@
+import * as React from 'react';
+
 import {
+  Grid,
   StyleRulesCallback,
   Theme,
   WithStyles,
   withStyles,
-  Grid,
 } from '@material-ui/core';
-import * as React from 'react';
+
+import { ITag } from '../../interfaces/Tag';
 import MainSearch from './MainSearch';
 
 export interface IMainSearchContainerProps {
-  placeholder?: string;
+  tags: ITag[];
 }
 
 export interface IMainSearchContainerState {
@@ -28,12 +31,12 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
 class MainSearchContainer extends React.Component<
   WithStyles<any> & IMainSearchContainerProps,
   IMainSearchContainerState
-> {
+  > {
   public render() {
-    const { classes } = this.props;
+    const { classes, tags } = this.props;
     return (
       <Grid item={true} xs={10} sm={8} md={6} lg={4} className={classes.root}>
-        <MainSearch />
+        <MainSearch tags={tags} />
       </Grid>
     );
   }

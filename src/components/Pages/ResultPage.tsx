@@ -1,15 +1,19 @@
+import * as React from 'react';
+
 import {
+  Grid,
   StyleRulesCallback,
   Theme,
   WithStyles,
   withStyles,
-  Grid,
 } from '@material-ui/core';
-import * as React from 'react';
+
+import { ITag } from '../../interfaces/Tag';
 import ResultContainer from '../Result/ResultContainer';
 
 export interface IResultPageProps extends WithStyles<typeof styles> {
   questionId: string;
+  tags: ITag[];
 }
 
 export interface IResultPageState {
@@ -27,11 +31,11 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
 
 class ResultPage extends React.Component<IResultPageProps, IResultPageState> {
   public render() {
-    const { classes, questionId } = this.props;
+    const { classes, questionId, tags } = this.props;
     return (
       <div className={classes.root}>
         <Grid container={true} justify={'center'}>
-          <ResultContainer questionId={questionId} />
+          <ResultContainer tags={tags} questionId={questionId} />
         </Grid>
       </div>
     );

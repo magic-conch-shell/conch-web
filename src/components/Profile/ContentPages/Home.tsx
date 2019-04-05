@@ -1,3 +1,5 @@
+import * as React from 'react';
+
 import {
   Chip,
   Grid,
@@ -12,22 +14,22 @@ import {
   WithStyles,
   withStyles,
 } from '@material-ui/core';
-import { darken } from '@material-ui/core/styles/colorManipulator';
-import axios from 'axios';
-import * as React from 'react';
 import { RouteComponentProps, withRouter } from 'react-router';
 
 import { IQuestion } from '../../../interfaces/Question';
+import { ITag } from '../../../interfaces/Tag';
 import { IUser } from '../../../interfaces/User';
+import axios from 'axios';
+import { darken } from '@material-ui/core/styles/colorManipulator';
 
 export interface IHomeProps extends WithStyles<typeof styles> {
   handleFinishLoading: () => void;
+  tags: ITag[];
   user: IUser;
 }
 
 export interface IHomeState {
   questions: IQuestion[];
-  tags: Array<{ id: number; name: string }>;
 }
 
 const styles: StyleRulesCallback<any> = (theme: Theme) => ({
@@ -59,10 +61,9 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
 class Home extends React.Component<
   RouteComponentProps<any> & IHomeProps,
   IHomeState
-> {
+  > {
   public state = {
-    questions: [] as IQuestion[],
-    tags: [] as Array<{ id: number; name: string }>,
+    questions: [] as IQuestion[]
   };
   public componentDidMount() {
     const { handleFinishLoading, user } = this.props;
@@ -79,11 +80,6 @@ class Home extends React.Component<
         console.log('call handleFinishLoading');
         handleFinishLoading();
       });
-
-    axios('/api/tags').then((result) => {
-      const { data } = result;
-      this.setState({ tags: data });
-    });
   }
 
   public handleLink = (id: number) => {
@@ -91,7 +87,7 @@ class Home extends React.Component<
   };
 
   public getTagById = (id: number) => {
-    const { tags } = this.state;
+    const { tags } = this.props;
     const len = tags.length;
     let result = {} as { id: number; name: string };
     for (let i = 0; i < len; i += 1) {

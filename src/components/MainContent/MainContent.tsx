@@ -17,12 +17,14 @@ import {
 } from 'react-router';
 
 import AuthPage from '../Pages/AuthPage';
+import { ISettings } from '../../interfaces/Settings';
+import { ITag } from '../../interfaces/Tag';
 import { IUser } from '../../interfaces/User';
 import MainPage from '../Pages/MainPage';
 import ProfilePage from '../Pages/ProfilePage';
 import ResultPage from '../Pages/ResultPage';
+import axios from 'axios';
 import classnames from 'classnames';
-import { ISettings } from '../../interfaces/Settings';
 
 export interface IMainContentProps {
   editUser: (user: IUser) => void;
@@ -35,6 +37,7 @@ export interface IMainContentProps {
 
 export interface IMainContentState {
   loading: boolean;
+  tags: ITag[];
 }
 
 const styles: StyleRulesCallback<any> = (theme: Theme) => ({
@@ -66,10 +69,18 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
 class MainContent extends React.Component<
   RouteComponentProps<any> & WithStyles<any> & IMainContentProps,
   IMainContentState
-> {
+  > {
   public state = {
     loading: true,
+    tags: [] as ITag[]
   };
+
+  public componentDidMount() {
+    axios('/api/tags').then((result) => {
+      const { data } = result;
+      this.setState({ tags: data });
+    });
+  }
 
   public handleFinishedLoading = () => {
     console.log('Finished loading!');
@@ -98,9 +109,9 @@ class MainContent extends React.Component<
       user,
       userSettings,
     } = this.props;
-    const { loading } = this.state;
+    const { loading, tags } = this.state;
     const homePage = () => {
-      return <MainPage handleFinishLoading={this.handleFinishedLoading} />;
+      return <MainPage handleFinishLoading={this.handleFinishedLoading} tags={tags} />;
     };
     const authPage = () => {
       return (
@@ -114,7 +125,7 @@ class MainContent extends React.Component<
       props: RouteComponentProps<any, StaticContext, any>
     ) => {
       const { questionId } = props.match.params;
-      return <ResultPage questionId={questionId} />;
+      return <ResultPage tags={tags} questionId={questionId} />;
     };
 
     const profilePage = () => {
@@ -123,13 +134,14 @@ class MainContent extends React.Component<
           editUser={editUser}
           handleFinishLoading={this.handleFinishedLoading}
           setTimeZone={setTimeZone}
+          tags={tags}
           toggleTheme={toggleTheme}
           user={user}
           userSettings={userSettings}
         />
       ) : (
-        <Redirect to="/login" />
-      );
+          <Redirect to="/login" />
+        );
     };
 
     return (

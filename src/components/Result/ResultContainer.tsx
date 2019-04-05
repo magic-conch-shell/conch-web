@@ -1,17 +1,22 @@
+import * as React from 'react';
+
 import {
+  Grid,
   StyleRulesCallback,
   Theme,
   WithStyles,
   withStyles,
-  Grid,
 } from '@material-ui/core';
-import * as React from 'react';
-import axios from 'axios';
-import Result from './Result';
+
 import { IQuestion } from '../../interfaces/Question';
+import { ITag } from '../../interfaces/Tag';
+import Result from './Result';
+import axios from 'axios';
+import classnames from 'classnames';
 import posed from 'react-pose';
 
 export interface IResultContainerProps extends WithStyles<typeof styles> {
+  tags: ITag[];
   questionId: string;
 }
 
@@ -35,12 +40,15 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
     marginTop: 'auto',
     marginBottom: 'auto',
   },
+  container: {
+    width: '100%'
+  }
 });
 
 class ResultContainer extends React.Component<
   IResultContainerProps,
   IResultContainerState
-> {
+  > {
   public signal = axios.CancelToken.source();
 
   public state = {
@@ -83,14 +91,14 @@ class ResultContainer extends React.Component<
 
   public render() {
     const { question, visible } = this.state;
-    const { classes } = this.props;
+    const { classes, tags } = this.props;
     return (
       <Grid item={true} xs={10} sm={6} md={4} lg={4} className={classes.root}>
         <OpacityContainer
-          className={classes.vCenter}
+          className={classnames(classes.container, classes.vCenter)}
           pose={visible ? 'visible' : 'hidden'}
         >
-          <Result result={question} />
+          {visible && <Result result={question} tags={tags} />}
         </OpacityContainer>
       </Grid>
     );

@@ -1,22 +1,24 @@
+import * as React from 'react';
+
+import { RouteComponentProps, withRouter } from 'react-router-dom';
 import {
   StyleRulesCallback,
   Theme,
   WithStyles,
   withStyles,
 } from '@material-ui/core';
-import * as React from 'react';
-import axios from 'axios';
-import posed from 'react-pose';
-import { RouteComponentProps, withRouter } from 'react-router-dom';
 
+import { ITag } from '../../interfaces/Tag';
 import InputContainer from '../Input/InputContainer';
 import MainSearchInput from './MainSearchInput';
 import MainSearchSelect from './MainSearchSelect';
 import MainSearchTagContainer from './MainSearchTagContainer';
 import MainSearchTitle from './MainSearchTitle';
+import axios from 'axios';
+import posed from 'react-pose';
 
 export interface IMainSearchProps extends RouteComponentProps, WithStyles {
-  placeholder?: string;
+  tags: ITag[];
 }
 
 export interface IMainSearchState {
@@ -25,7 +27,6 @@ export interface IMainSearchState {
   inputState: InputState;
   submissionState: SubmissionState;
   selectedTags: number[];
-  tags: Array<{ id: number; name: string }>;
 }
 
 enum InputState {
@@ -111,16 +112,8 @@ class MainSearch extends React.Component<IMainSearchProps, IMainSearchState> {
       inputState: InputState.DEFAULT,
       submissionState: SubmissionState.DEFAULT,
       selectedTags: [] as number[],
-      tags: [] as Array<{ id: number; name: string }>,
     };
     this.heightRef = React.createRef();
-  }
-
-  public componentDidMount() {
-    axios('/api/tags').then((result) => {
-      const { data } = result;
-      this.setState({ tags: data });
-    });
   }
 
   public handleSubmit = (ev?: any) => {
@@ -200,9 +193,8 @@ class MainSearch extends React.Component<IMainSearchProps, IMainSearchState> {
       title,
       content,
       submissionState,
-      tags,
     } = this.state;
-    const { classes } = this.props;
+    const { classes, tags } = this.props;
     return (
       <LongOpacityContainer
         className={classes.root}

@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { DirectUpload } from 'activestorage';
 
 import {
   Avatar,
@@ -11,15 +10,18 @@ import {
   withStyles,
 } from '@material-ui/core';
 
+import { DirectUpload } from 'activestorage';
+import { ISettings } from '../../interfaces/Settings';
+import { ITag } from '../../interfaces/Tag';
 import { IUser } from '../../interfaces/User';
 import ProfileContent from './ProfileContent';
 import ProfileTabList from './ProfileTabList';
-import { ISettings } from '../../interfaces/Settings';
 import axios from 'axios';
 
 export interface IProfileContainerProps extends WithStyles<typeof styles> {
   editUser: (user: IUser) => void;
   setTimeZone: (timeZone: string) => void;
+  tags: ITag[];
   toggleTheme: () => void;
   user: IUser;
   userSettings: ISettings;
@@ -89,7 +91,7 @@ const PROFILE_TABS = ['Home', 'Settings'];
 class ProfileContainer extends React.Component<
   IProfileContainerProps,
   IProfileContainerState
-> {
+  > {
   public inputRef: React.RefObject<any>;
 
   constructor(props: IProfileContainerProps) {

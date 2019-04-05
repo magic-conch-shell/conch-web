@@ -8,14 +8,16 @@ import {
   withStyles,
 } from '@material-ui/core';
 
+import { ISettings } from '../../interfaces/Settings';
+import { ITag } from '../../interfaces/Tag';
 import { IUser } from '../../interfaces/User';
 import ProfileContainer from '../Profile/ProfileContainer';
-import { ISettings } from '../../interfaces/Settings';
 
 export interface IProfilePageProps extends WithStyles<typeof styles> {
   editUser: (user: IUser) => void;
   handleFinishLoading: () => void;
   setTimeZone: (timeZone: string) => void;
+  tags: ITag[];
   toggleTheme: () => void;
   user: IUser;
   userSettings: ISettings;
@@ -37,7 +39,7 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
 class ProfilePage extends React.Component<
   IProfilePageProps,
   IProfilePageState
-> {
+  > {
   public componentDidMount() {
     this.props.handleFinishLoading();
   }

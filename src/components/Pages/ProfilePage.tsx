@@ -29,7 +29,6 @@ export interface IProfilePageState {
 
 const styles: StyleRulesCallback<any> = (theme: Theme) => ({
   root: {
-    height: 'calc(100% + 90px)',
     width: '100%',
     marginTop: '-90px',
     display: 'flex',
@@ -39,7 +38,7 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
 class ProfilePage extends React.Component<
   IProfilePageProps,
   IProfilePageState
-  > {
+> {
   public componentDidMount() {
     this.props.handleFinishLoading();
   }

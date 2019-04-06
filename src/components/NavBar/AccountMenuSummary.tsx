@@ -1,6 +1,13 @@
 import * as React from 'react';
 
-import { Avatar, StyleRulesCallback, Theme, Typography, WithStyles, withStyles } from '@material-ui/core';
+import {
+  Avatar,
+  StyleRulesCallback,
+  Theme,
+  Typography,
+  WithStyles,
+  withStyles,
+} from '@material-ui/core';
 
 import { IUser } from '../../interfaces/User';
 
@@ -13,25 +20,43 @@ export interface IAccountMenuSummaryState {
 }
 
 const styles: StyleRulesCallback<any> = (theme: Theme) => ({
-  root: {},
   avatar: {
     height: '40px',
     width: '40px',
-    borderRadius: '5px'
-  }
+    borderRadius: '5px',
+  },
+  root: {
+    padding: theme.spacing.unit * 2,
+    paddingTop: theme.spacing.unit,
+    display: 'flex',
+  },
+  userInfo: {
+    marginLeft: theme.spacing.unit,
+  },
+  userNickName: {
+    fontWeight: 'bold',
+  },
+  userStatus: {},
 });
 
-class AccountMenuSummary extends React.Component<IAccountMenuSummaryProps, IAccountMenuSummaryState> {
+class AccountMenuSummary extends React.Component<
+  IAccountMenuSummaryProps,
+  IAccountMenuSummaryState
+> {
   public render() {
     const { classes, user } = this.props;
     return (
-      <>
+      <div className={classes.root}>
         <Avatar className={classes.avatar} src={user.avatar} />
-        <div style={{ paddingLeft: '5px' }}>
-          <Typography>{user.nickname}</Typography>
-          <Typography variant='caption'>user status</Typography>
+        <div className={classes.userInfo}>
+          <Typography className={classes.userNickName}>
+            {user.nickname}
+          </Typography>
+          <Typography className={classes.userEmail} variant="caption">
+            user status
+          </Typography>
         </div>
-      </>
+      </div>
     );
   }
 }

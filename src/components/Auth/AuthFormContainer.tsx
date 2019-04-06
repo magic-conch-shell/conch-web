@@ -191,13 +191,21 @@ class AuthFormContainer extends React.Component<
       .then((result) => {
         console.log('[signIn].then');
         const { data } = result;
-        const { id, avatar, nickname, email: userEmail, phone } = data;
+        const {
+          id,
+          avatar,
+          nickname,
+          email: userEmail,
+          phone,
+          is_mentor,
+        } = data;
         handleSignIn({
           id,
           nickname,
           email: userEmail,
           phone,
           avatar,
+          is_mentor,
         });
       })
       .catch((err) => {
@@ -232,6 +240,7 @@ class AuthFormContainer extends React.Component<
           nickname: userNickname,
           email: userEmail,
           phone,
+          is_mentor,
         } = data;
         handleSignIn({
           id,
@@ -239,6 +248,7 @@ class AuthFormContainer extends React.Component<
           email: userEmail,
           phone,
           avatar,
+          is_mentor,
         });
         signUp.state = SignUpState.SIGNED_UP;
         this.setState({ states });

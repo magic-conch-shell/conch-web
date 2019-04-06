@@ -20,7 +20,6 @@ export interface IAuthPageState {
 
 const styles: StyleRulesCallback<any> = (theme: Theme) => ({
   root: {
-    height: 'calc(100% + 90px)',
     width: '100%',
     marginTop: '-90px',
     display: 'flex',

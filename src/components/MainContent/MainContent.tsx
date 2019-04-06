@@ -25,6 +25,7 @@ import ProfilePage from '../Pages/ProfilePage';
 import ResultPage from '../Pages/ResultPage';
 import axios from 'axios';
 import classnames from 'classnames';
+import MentorPage from '../Pages/MentorPage';
 
 export interface IMainContentProps {
   editUser: (user: IUser) => void;
@@ -42,7 +43,6 @@ export interface IMainContentState {
 
 const styles: StyleRulesCallback<any> = (theme: Theme) => ({
   root: {
-    height: 'calc(100% - 90px)',
     marginTop: '90px',
     width: '100%',
     display: 'flex',
@@ -60,19 +60,18 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
     margin: 'auto',
   },
   switchContainer: {
-    height: '100%',
-    width: '100%',
     display: 'flex',
+    width: '100%',
   },
 });
 
 class MainContent extends React.Component<
   RouteComponentProps<any> & WithStyles<any> & IMainContentProps,
   IMainContentState
-  > {
+> {
   public state = {
     loading: true,
-    tags: [] as ITag[]
+    tags: [] as ITag[],
   };
 
   public componentDidMount() {
@@ -111,7 +110,12 @@ class MainContent extends React.Component<
     } = this.props;
     const { loading, tags } = this.state;
     const homePage = () => {
-      return <MainPage handleFinishLoading={this.handleFinishedLoading} tags={tags} />;
+      return (
+        <MainPage
+          handleFinishLoading={this.handleFinishedLoading}
+          tags={tags}
+        />
+      );
     };
     const authPage = () => {
       return (
@@ -128,6 +132,10 @@ class MainContent extends React.Component<
       return <ResultPage tags={tags} questionId={questionId} />;
     };
 
+    const mentorPage = () => {
+      return <MentorPage tags={tags} />;
+    };
+
     const profilePage = () => {
       return user ? (
         <ProfilePage
@@ -140,8 +148,8 @@ class MainContent extends React.Component<
           userSettings={userSettings}
         />
       ) : (
-          <Redirect to="/login" />
-        );
+        <Redirect to="/login" />
+      );
     };
 
     return (
@@ -168,6 +176,7 @@ class MainContent extends React.Component<
               />
               <Route path="/login" render={authPage} />
               <Route path="/profile" render={profilePage} />
+              <Route path="/queue" render={mentorPage} />
               <Route
                 path="/results/:questionId"
                 render={(props) => resultPage(props)}

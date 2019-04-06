@@ -91,7 +91,7 @@ const PROFILE_TABS = ['Home', 'Settings'];
 class ProfileContainer extends React.Component<
   IProfileContainerProps,
   IProfileContainerState
-  > {
+> {
   public inputRef: React.RefObject<any>;
 
   constructor(props: IProfileContainerProps) {

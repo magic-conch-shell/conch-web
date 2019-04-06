@@ -19,7 +19,7 @@ export interface IFooterContainerState {
 
 const styles: StyleRulesCallback<any> = (theme: Theme) => ({
   root: {
-    position: 'absolute',
+    position: 'fixed',
     bottom: 0,
     width: '100%',
   },

@@ -58,7 +58,7 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
 class ProfileContent extends React.Component<
   IProfileContentProps,
   IProfileContentState
-  > {
+> {
   public getTabContent = () => {
     const {
       classes,
@@ -71,11 +71,18 @@ class ProfileContent extends React.Component<
 
     switch (currentTab) {
       case 0:
-        return <Home handleFinishLoading={handleFinishLoading} tags={tags} user={user} />;
+        return (
+          <Home
+            handleFinishLoading={handleFinishLoading}
+            tags={tags}
+            user={user}
+          />
+        );
       case 1:
         return (
           <Settings
             user={user}
+            tags={tags}
             handleFinishLoading={handleFinishLoading}
             {...rest}
           />

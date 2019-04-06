@@ -15,6 +15,7 @@ import MainContent from '../MainContent/MainContent';
 import NavBar from '../NavBar/NavBar';
 import NavBarAccount from '../NavBar/NavBarAccount';
 import axios from 'axios';
+import NavBarMentorStatus from '../NavBar/NavBarMentorStatus';
 
 export interface IAppState {
   loading: boolean;
@@ -31,7 +32,7 @@ export interface IAppProps {
 const styles: StyleRulesCallback<any> = (theme: Theme) => ({
   root: {
     backgroundColor: theme.palette.background.default,
-    height: '100%',
+    minHeight: '100%',
     display: 'flex',
   },
   loading: {
@@ -48,7 +49,7 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
 class App extends Component<
   RouteComponentProps<any> & WithStyles<any> & IAppProps,
   IAppState
-  > {
+> {
   public state = {
     loading: true,
     navBarAnchorEl: undefined,
@@ -63,13 +64,14 @@ class App extends Component<
     })
       .then((result) => {
         const { data } = result;
-        const { id, avatar, nickname, email, phone } = data;
+        const { id, avatar, nickname, email, phone, is_mentor } = data;
         this.handleSignIn({
           id,
           nickname,
           email,
           phone,
           avatar,
+          is_mentor,
         });
       })
       .catch((err) => console.log(err))
@@ -133,6 +135,7 @@ class App extends Component<
           toggleTheme={toggleTheme}
           theme={themeType}
         >
+          {user && (user as IUser).is_mentor && <NavBarMentorStatus />}
           <NavBarAccount
             anchorEl={navBarAnchorEl}
             handleClick={this.navBarHandleClick}
@@ -148,15 +151,15 @@ class App extends Component<
             <CircularProgress className={classes.loading} size={96} />
           </div>
         ) : (
-            <MainContent
-              user={user}
-              userSettings={userSettings}
-              handleSignIn={this.handleSignIn}
-              setTimeZone={setTimeZone}
-              toggleTheme={toggleTheme}
-              editUser={this.editUser}
-            />
-          )}
+          <MainContent
+            user={user}
+            userSettings={userSettings}
+            handleSignIn={this.handleSignIn}
+            setTimeZone={setTimeZone}
+            toggleTheme={toggleTheme}
+            editUser={this.editUser}
+          />
+        )}
         <FooterContainer theme={themeType} toggleTheme={toggleTheme} />
       </div>
     );

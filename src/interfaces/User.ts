@@ -3,5 +3,6 @@ export interface IUser {
   email: string;
   nickname: string;
   avatar: string;
+  is_mentor: boolean;
   phone?: string;
 }

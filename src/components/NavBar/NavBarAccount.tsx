@@ -35,6 +35,9 @@ export interface INavBarAccountState {
 
 const styles: StyleRulesCallback<any> = (theme: Theme) => ({
   root: {},
+  link: {
+    textDecoration: 'none',
+  },
   avatar: {
     margin: 'auto',
     borderRadius: '5px',
@@ -63,6 +66,9 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
     fontSize: '1.5rem',
     fontWeight: 'lighter',
   },
+  menuList: {
+    marginTop: '60px',
+  },
   userAccount: {
     display: 'flex',
     cursor: 'pointer',
@@ -76,7 +82,7 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
 class NavBarAccount extends React.Component<
   RouteComponentProps<any> & INavBarAccountProps,
   INavBarAccountState
-  > {
+> {
   public render() {
     const {
       anchorEl,
@@ -96,41 +102,49 @@ class NavBarAccount extends React.Component<
         )}
       >
         {location.pathname === '/login' ||
-          location.pathname === '/register' ? null : !user ? (
-            <div className={classes.accountMenuButtonContainer}>
-              <Button
-                variant="text"
-                className={classes.accountMenuButton}
-                onClick={() => <Redirect to="/login" />}
-              >
-                Log In
+        location.pathname === '/register' ? null : !user ? (
+          <div className={classes.accountMenuButtonContainer}>
+            <Button
+              variant="text"
+              className={classes.accountMenuButton}
+              onClick={() => <Redirect to="/login" />}
+            >
+              Log In
             </Button>
-              {/* <div className={classes.verticalDivider}>|</div> */}
-              {/* <Button variant="text" className={classes.accountMenuButton}>
+            {/* <div className={classes.verticalDivider}>|</div> */}
+            {/* <Button variant="text" className={classes.accountMenuButton}>
               Sign Up
             </Button> */}
+          </div>
+        ) : (
+          <>
+            <div className={classes.userAccount} onClick={handleClick}>
+              <Avatar className={classes.avatar} src={user.avatar} />
             </div>
-          ) : (
-              <>
-                <div className={classes.userAccount} onClick={handleClick}>
-                  <Avatar className={classes.avatar} src={user.avatar} />
-                </div>
-                <Menu
-                  id="accountOptions-menu"
-                  anchorEl={anchorEl}
-                  open={Boolean(anchorEl)}
-                  onClose={() => handleClose()}
-                >
-                  <AccountMenuSummary user={user} />
-                  <Link to="/profile" onClick={() => handleClose()}>
-                    <MenuItem>Profile</MenuItem>
-                  </Link>
-                  <MenuItem onClick={() => handleClose(handleSignOut)}>
-                    Sign Out
+            <Menu
+              id="accountOptions-menu"
+              className={classes.accountMenu}
+              anchorEl={anchorEl}
+              open={Boolean(anchorEl)}
+              onClose={() => handleClose()}
+              classes={{
+                paper: classes.menuList,
+              }}
+            >
+              <AccountMenuSummary user={user} />
+              <Link
+                className={classes.link}
+                to="/profile"
+                onClick={() => handleClose()}
+              >
+                <MenuItem>Profile</MenuItem>
+              </Link>
+              <MenuItem onClick={() => handleClose(handleSignOut)}>
+                Sign Out
               </MenuItem>
-                </Menu>
-              </>
-            )}
+            </Menu>
+          </>
+        )}
       </div>
     );
   }

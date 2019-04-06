@@ -11,6 +11,7 @@ import {
   WithStyles,
   withStyles,
   FormHelperText,
+  Button,
 } from '@material-ui/core';
 import classnames from 'classnames';
 import Downshift from 'downshift';
@@ -20,22 +21,25 @@ import * as React from 'react';
 import { ISettings } from '../../../interfaces/Settings';
 import { IUser } from '../../../interfaces/User';
 import { ThemeTypes } from '../../../themes/mainTheme';
+import MentorRegistration from '../../Dialog/MentorRegistration';
+import { ITag } from '../../../interfaces/Tag';
 
 export interface ISettingsProps extends WithStyles<typeof styles> {
   editUser: (user: IUser) => void;
   handleFinishLoading: () => void;
   setTimeZone: (timeZone: string) => void;
   toggleTheme: () => void;
+  tags: ITag[];
   user: IUser;
   userSettings: ISettings;
 }
 
 export interface ISettingsState {
-  [index: string]: string;
   nicknameText: string;
   passwordText: string;
   passwordConfirmText: string;
   passwordErrorText: string;
+  mentorDialogOpen: boolean;
 }
 
 const styles: StyleRulesCallback<any> = (theme: Theme) => ({
@@ -90,6 +94,7 @@ class Settings extends React.Component<ISettingsProps, ISettingsState> {
     passwordText: '',
     passwordConfirmText: '',
     passwordErrorText: '',
+    mentorDialogOpen: false,
   };
 
   public componentDidMount() {
@@ -102,7 +107,7 @@ class Settings extends React.Component<ISettingsProps, ISettingsState> {
   };
 
   public handleTextChange = (ev: any) => {
-    console.log(ev.target);
+    // @ts-ignore
     this.setState({ [ev.target.id as string]: ev.target.value });
   };
 
@@ -130,142 +135,167 @@ class Settings extends React.Component<ISettingsProps, ISettingsState> {
     }
   };
 
+  public toggleMentorDialog = () => {
+    this.setState((prevState) => ({
+      mentorDialogOpen: !prevState.mentorDialogOpen,
+    }));
+  };
+
+  public openMentorDialog = () => {
+    this.setState({ mentorDialogOpen: true });
+  };
+
+  public closeMentorDialog = () => {
+    this.setState({ mentorDialogOpen: false });
+  };
+
   public render() {
     const {
       nicknameText,
       passwordText,
       passwordConfirmText,
       passwordErrorText,
+      mentorDialogOpen,
     } = this.state;
-    const { classes, toggleTheme, userSettings } = this.props;
+    const { classes, tags, toggleTheme, userSettings } = this.props;
     return (
-      <Grid container={true} spacing={24} className={classes.root}>
-        <Grid item={true} xs={6}>
-          <FormControlLabel
-            control={
-              <Checkbox
-                color="primary"
-                onChange={toggleTheme}
-                checked={userSettings.themeType === ThemeTypes.DARK}
-              />
-            }
-            label="Dark Mode"
-          />
-        </Grid>
-        <Grid item={true} xs={6}>
-          <label id="select-timezone-label">Timezone</label>
-          <Downshift
-            id="downshift-select-timezone"
-            onChange={this.handleSelectChange}
-            initialInputValue={userSettings.timeZone}
-            labelId="select-timezone-label"
-          >
-            {({
-              getInputProps,
-              getItemProps,
-              getMenuProps,
-              highlightedIndex,
-              inputValue,
-              isOpen,
-              selectedItem,
-              clearSelection,
-            }) => {
-              const inputValueLower =
-                inputValue && inputValue.toLocaleLowerCase();
-              return (
-                <div className={classes.container}>
-                  <input
-                    className={classes.input}
-                    {...getInputProps()}
-                    placeholder="Select timezone"
-                  />
-                  <div {...getMenuProps()}>
-                    {isOpen && (
-                      <Paper className={classes.paper} elevation={4}>
-                        {TIMEZONES.filter((timezone) => {
-                          const timezoneLower = timezone.toLocaleLowerCase();
-                          const result =
-                            !inputValueLower ||
-                            timezoneLower.includes(inputValueLower);
-                          return result;
-                        })
-                          .slice(0, 30)
-                          .map((tz, index) => {
-                            return (
-                              <li
-                                {...getItemProps({ item: tz })}
-                                className={classnames(
-                                  classes.listItem,
-                                  highlightedIndex === index &&
-                                    classes.highlighted
-                                )}
-                                key={`${tz}-${index}`}
-                                value={tz}
-                                tabIndex={0}
-                              >
-                                {tz}
-                              </li>
-                            );
-                          })}
-                      </Paper>
-                    )}
+      <>
+        <MentorRegistration
+          open={mentorDialogOpen}
+          closeDialog={this.closeMentorDialog}
+          tags={tags}
+        />
+        <Grid container={true} spacing={24} className={classes.root}>
+          <Grid item={true} xs={6}>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  color="primary"
+                  onChange={toggleTheme}
+                  checked={userSettings.themeType === ThemeTypes.DARK}
+                />
+              }
+              label="Dark Mode"
+            />
+          </Grid>
+          <Grid item={true} xs={6}>
+            <label id="select-timezone-label">Timezone</label>
+            <Downshift
+              id="downshift-select-timezone"
+              onChange={this.handleSelectChange}
+              initialInputValue={userSettings.timeZone}
+              labelId="select-timezone-label"
+            >
+              {({
+                getInputProps,
+                getItemProps,
+                getMenuProps,
+                highlightedIndex,
+                inputValue,
+                isOpen,
+                selectedItem,
+                clearSelection,
+              }) => {
+                const inputValueLower =
+                  inputValue && inputValue.toLocaleLowerCase();
+                return (
+                  <div className={classes.container}>
+                    <input
+                      className={classes.input}
+                      {...getInputProps()}
+                      placeholder="Select timezone"
+                    />
+                    <div {...getMenuProps()}>
+                      {isOpen && (
+                        <Paper className={classes.paper} elevation={4}>
+                          {TIMEZONES.filter((timezone) => {
+                            const timezoneLower = timezone.toLocaleLowerCase();
+                            const result =
+                              !inputValueLower ||
+                              timezoneLower.includes(inputValueLower);
+                            return result;
+                          })
+                            .slice(0, 30)
+                            .map((tz, index) => {
+                              return (
+                                <li
+                                  {...getItemProps({ item: tz })}
+                                  className={classnames(
+                                    classes.listItem,
+                                    highlightedIndex === index &&
+                                      classes.highlighted
+                                  )}
+                                  key={`${tz}-${index}`}
+                                  value={tz}
+                                  tabIndex={0}
+                                >
+                                  {tz}
+                                </li>
+                              );
+                            })}
+                        </Paper>
+                      )}
+                    </div>
                   </div>
-                </div>
-              );
-            }}
-          </Downshift>
+                );
+              }}
+            </Downshift>
+          </Grid>
+          <Grid item={true} xs={6}>
+            <form onSubmit={this._changeNickname}>
+              <FormControl className={classes.formControl}>
+                <InputLabel htmlFor="nicknameText">Change Nickname</InputLabel>
+                <Input
+                  id="nicknameText"
+                  value={nicknameText}
+                  type="text"
+                  onChange={this.handleTextChange}
+                />
+              </FormControl>
+              <button type="submit" style={{ display: 'none' }} />
+            </form>
+          </Grid>
+          <Grid item={true} xs={6}>
+            <form
+              style={{ display: 'flex', flexWrap: 'wrap' }}
+              onSubmit={this._changePassword}
+            >
+              <FormControl className={classes.formControl}>
+                <InputLabel htmlFor="passwordText">Change Password</InputLabel>
+                <Input
+                  id="passwordText"
+                  value={passwordText}
+                  type="password"
+                  onChange={this.handleTextChange}
+                  error={passwordErrorText.length > 0}
+                />
+                <FormHelperText id="passwordError">
+                  {passwordErrorText}
+                </FormHelperText>
+              </FormControl>
+              <FormControl className={classes.formControl}>
+                <InputLabel htmlFor="passwordConfirmText">
+                  Confirm Password
+                </InputLabel>
+                <Input
+                  id="passwordConfirmText"
+                  value={passwordConfirmText}
+                  type="password"
+                  onChange={this.handleTextChange}
+                  error={passwordErrorText.length > 0}
+                />
+                <FormHelperText id="passwordConfirmError">
+                  {passwordErrorText}
+                </FormHelperText>
+              </FormControl>
+              <button type="submit" style={{ display: 'none' }} />
+            </form>
+          </Grid>
+          <Grid item={true} xs={6}>
+            <Button onClick={this.openMentorDialog} />
+          </Grid>
         </Grid>
-        <Grid item={true} xs={6}>
-          <form onSubmit={this._changeNickname}>
-            <FormControl className={classes.formControl}>
-              <InputLabel htmlFor="nicknameText">Change Nickname</InputLabel>
-              <Input
-                id="nicknameText"
-                value={nicknameText}
-                type="text"
-                onChange={this.handleTextChange}
-              />
-            </FormControl>
-            <button type="submit" style={{ display: 'none' }} />
-          </form>
-        </Grid>
-        <Grid item={true} xs={6}>
-          <form
-            style={{ display: 'flex', flexWrap: 'wrap' }}
-            onSubmit={this._changePassword}
-          >
-            <FormControl className={classes.formControl}>
-              <InputLabel htmlFor="passwordText">Change Password</InputLabel>
-              <Input
-                id="passwordText"
-                value={passwordText}
-                type="password"
-                onChange={this.handleTextChange}
-                error={passwordErrorText.length > 0}
-              />
-              <FormHelperText id="passwordError">
-                {passwordErrorText}
-              </FormHelperText>
-            </FormControl>
-            <FormControl className={classes.formControl}>
-              <InputLabel htmlFor="passwordConfirmText">
-                Confirm Password
-              </InputLabel>
-              <Input
-                id="passwordConfirmText"
-                value={passwordConfirmText}
-                type="password"
-                onChange={this.handleTextChange}
-                error={passwordErrorText.length > 0}
-              />
-              <FormHelperText id="passwordConfirmError">
-                {passwordErrorText}
-              </FormHelperText>
-            </FormControl>
-            <button type="submit" style={{ display: 'none' }} />
-          </form>
-        </Grid>
-      </Grid>
+      </>
     );
   }
 }

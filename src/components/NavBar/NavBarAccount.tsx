@@ -1,20 +1,10 @@
 import * as React from 'react';
 
-import {
-  Avatar,
-  Button,
-  Menu,
-  MenuItem,
-  StyleRulesCallback,
-  Theme,
-  WithStyles,
-  withStyles,
-} from '@material-ui/core';
-import { Redirect, RouteComponentProps, withRouter } from 'react-router-dom';
+import { Avatar, Menu, MenuItem, StyleRulesCallback, Theme, WithStyles, withStyles } from '@material-ui/core';
+import { Link, RouteComponentProps, withRouter } from 'react-router-dom';
 
 import AccountMenuSummary from './AccountMenuSummary';
 import { IUser } from '../../interfaces/User';
-import { Link } from 'react-router-dom';
 import { ThemeTypes } from '../../themes/mainTheme';
 import classnames from 'classnames';
 import { darken } from '@material-ui/core/styles/colorManipulator';
@@ -82,7 +72,7 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
 class NavBarAccount extends React.Component<
   RouteComponentProps<any> & INavBarAccountProps,
   INavBarAccountState
-> {
+  > {
   public render() {
     const {
       anchorEl,
@@ -144,7 +134,7 @@ class NavBarAccount extends React.Component<
               </MenuItem>
             </Menu>
           </>
-        )}
+        }
       </div>
     );
   }

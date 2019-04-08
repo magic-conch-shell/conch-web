@@ -21,11 +21,11 @@ import { ISettings } from '../../interfaces/Settings';
 import { ITag } from '../../interfaces/Tag';
 import { IUser } from '../../interfaces/User';
 import MainPage from '../Pages/MainPage';
+import MentorPage from '../Pages/MentorPage';
 import ProfilePage from '../Pages/ProfilePage';
 import ResultPage from '../Pages/ResultPage';
 import axios from 'axios';
 import classnames from 'classnames';
-import MentorPage from '../Pages/MentorPage';
 
 export interface IMainContentProps {
   editUser: (user: IUser) => void;
@@ -63,12 +63,15 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
     display: 'flex',
     width: '100%',
   },
+  hidden: {
+    display: 'none',
+  },
 });
 
 class MainContent extends React.Component<
   RouteComponentProps<any> & WithStyles<any> & IMainContentProps,
   IMainContentState
-> {
+  > {
   public state = {
     loading: true,
     tags: [] as ITag[],
@@ -148,8 +151,8 @@ class MainContent extends React.Component<
           userSettings={userSettings}
         />
       ) : (
-        <Redirect to="/login" />
-      );
+          <Redirect to="/login" />
+        );
     };
 
     return (

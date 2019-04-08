@@ -43,7 +43,7 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
 class MainSearchTagContainer extends React.Component<
   IMainSearchTagContainerProps,
   IMainSearchTagContainerState
-> {
+  > {
   public getTagById = (id: number) => {
     const { tags } = this.props;
     const len = tags.length;

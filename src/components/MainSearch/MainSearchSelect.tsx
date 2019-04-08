@@ -1,3 +1,5 @@
+import * as React from 'react';
+
 import {
   Paper,
   StyleRulesCallback,
@@ -5,8 +7,8 @@ import {
   WithStyles,
   withStyles,
 } from '@material-ui/core';
+
 import Downshift from 'downshift';
-import * as React from 'react';
 import classnames from 'classnames';
 import posed from 'react-pose';
 
@@ -32,7 +34,8 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
   root: {},
   container: {
     width: 'calc(100% - 12px)',
-    zIndex: 1,
+    zIndex: 9999,
+    position: 'relative'
   },
   input: {
     backgroundColor: 'transparent',
@@ -63,7 +66,7 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
   },
   paper: {
     maxHeight: '300px',
-    overflowY: 'scroll',
+    overflowY: 'scroll'
   },
   highlighted: {
     backgroundColor: theme.palette.background.default,
@@ -77,7 +80,7 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
 class MainSearchSelect extends React.Component<
   WithStyles<any> & IMainSearchSelectProps,
   IMainSearchSelectState
-> {
+  > {
   public state = {
     selectValue: '',
   };
@@ -152,7 +155,7 @@ class MainSearchSelect extends React.Component<
                                 className={classnames(
                                   classes.listItem,
                                   highlightedIndex === index &&
-                                    classes.highlighted
+                                  classes.highlighted
                                 )}
                                 key={id}
                                 value={name}

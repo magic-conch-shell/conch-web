@@ -1,11 +1,13 @@
+import * as React from 'react';
+
 import {
   StyleRulesCallback,
   Theme,
+  Toolbar,
   WithStyles,
   withStyles,
-  Toolbar,
 } from '@material-ui/core';
-import * as React from 'react';
+
 import { Link } from 'react-router-dom';
 
 export interface INavBarToolbarProps extends WithStyles<typeof styles> {
@@ -24,18 +26,18 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
   toolbar: {
     display: 'flex',
     marginTop: 'auto',
-    marginBottom: 'auto',
+    marginBottom: 'auto'
   },
   marginLeftAuto: {
     marginLeft: 'auto',
-    display: 'flex',
+    display: 'flex'
   },
 });
 
 class NavBarToolbar extends React.Component<
   INavBarToolbarProps,
   INavBarToolbarState
-> {
+  > {
   public render() {
     const { classes, logoColor } = this.props;
     return (

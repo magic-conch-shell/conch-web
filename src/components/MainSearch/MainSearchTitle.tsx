@@ -1,10 +1,11 @@
+import * as React from 'react';
+
 import {
   StyleRulesCallback,
   Theme,
   WithStyles,
   withStyles,
 } from '@material-ui/core';
-import * as React from 'react';
 
 export interface IMainSearchTitleProps {
   handleChange: (title: string) => void;
@@ -37,7 +38,7 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
 class MainSearchTitle extends React.Component<
   WithStyles<any> & IMainSearchTitleProps,
   IMainSearchTitleState
-> {
+  > {
   public _handleChange = (ev: any) => {
     this.props.handleChange(ev.target.value);
   };

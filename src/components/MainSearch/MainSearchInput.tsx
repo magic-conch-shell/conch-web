@@ -1,13 +1,8 @@
-import {
-  IconButton,
-  StyleRulesCallback,
-  Theme,
-  Tooltip,
-  WithStyles,
-  withStyles,
-} from '@material-ui/core';
-import Send from '@material-ui/icons/Send';
 import * as React from 'react';
+
+import { IconButton, StyleRulesCallback, Theme, Tooltip, WithStyles, withStyles } from '@material-ui/core';
+
+import Send from '@material-ui/icons/Send';
 import TextareaAutosize from 'react-textarea-autosize';
 
 export interface IMainSearchInputProps extends WithStyles<typeof styles> {
@@ -75,7 +70,7 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
 class MainSearchInput extends React.Component<
   IMainSearchInputProps,
   IMainSearchInputState
-> {
+  > {
   public inputRef: HTMLTextAreaElement | null;
   public state = {
     disableInputIcon: false,

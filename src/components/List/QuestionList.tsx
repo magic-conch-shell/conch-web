@@ -1,3 +1,5 @@
+import * as React from 'react';
+
 import {
   Chip,
   CircularProgress,
@@ -12,12 +14,11 @@ import {
   WithStyles,
   withStyles,
 } from '@material-ui/core';
-import axios from 'axios';
-import * as React from 'react';
 import { RouteComponentProps, withRouter } from 'react-router';
 
 import { IQuestion } from '../../interfaces/Question';
 import { ITag } from '../../interfaces/Tag';
+import axios from 'axios';
 
 export interface IQuestionListProps extends WithStyles<typeof styles> {
   userId?: number;
@@ -68,7 +69,7 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
 class QuestionList extends React.Component<
   RouteComponentProps<any> & IQuestionListProps,
   IQuestionListState
-> {
+  > {
   public state = {
     errorText: '',
     loading: true,
@@ -131,54 +132,60 @@ class QuestionList extends React.Component<
         ) : errorText.length > 0 ? (
           <div className={classes.error}>{errorText}</div>
         ) : (
-          <Table className={classes.table} padding="dense">
-            <TableHead className={classes.tableHeader}>
-              <TableRow>
-                <TableCell>Date</TableCell>
-                <TableCell>Title</TableCell>
-                <TableCell>Question</TableCell>
-                <TableCell>Tags</TableCell>
-                <TableCell>Status</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody className={classes.tableBody}>
-              {questions.map((question, index) => {
-                const createdAt = new Date(question.created_at);
-                return (
-                  <TableRow
-                    key={index}
-                    onClick={() => this.handleLink(question.id)}
-                    className={classes.tableRow}
-                    hover={true}
-                  >
-                    <TableCell>
-                      {`${createdAt.toLocaleDateString()}\n${createdAt.toLocaleTimeString()}`}
-                    </TableCell>
-                    <TableCell>
-                      {question.title.length > 0 &&
-                        `${question.title.substr(0, 20)}`}
-                      {question.title.length > 20 && '...'}
-                    </TableCell>
-                    <TableCell style={{ wordWrap: 'break-word' }}>
-                      {`${question.content.substr(0, 20)}`}
-                      {question.content.length > 20 && '...'}
-                    </TableCell>
-                    <TableCell>
-                      {question.tags.map((tag, i) => (
-                        <Chip
-                          key={i}
-                          className={classes.chip}
-                          label={this.getTagById(tag).name}
-                        />
-                      ))}
-                    </TableCell>
-                    <TableCell>{question.status}</TableCell>
+              <Table className={classes.table} padding="dense">
+                <TableHead className={classes.tableHeader}>
+                  <TableRow>
+                    <TableCell>Date</TableCell>
+                    <TableCell>Title</TableCell>
+                    <TableCell>Question</TableCell>
+                    <TableCell>Tags</TableCell>
+                    <TableCell>Status</TableCell>
                   </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        )}
+                </TableHead>
+                <TableBody className={classes.tableBody}>
+                  {questions
+                    .sort((a, b) => {
+                      const aDate = new Date(a.created_at);
+                      const bDate = new Date(b.created_at);
+                      return aDate > bDate ? -1 : 1;
+                    })
+                    .map((question, index) => {
+                      const createdAt = new Date(question.created_at);
+                      return (
+                        <TableRow
+                          key={index}
+                          onClick={() => this.handleLink(question.id)}
+                          className={classes.tableRow}
+                          hover={true}
+                        >
+                          <TableCell>
+                            {`${createdAt.toLocaleDateString()}\n${createdAt.toLocaleTimeString()}`}
+                          </TableCell>
+                          <TableCell>
+                            {question.title.length > 0 &&
+                              `${question.title.substr(0, 20)}`}
+                            {question.title.length > 20 && '...'}
+                          </TableCell>
+                          <TableCell style={{ wordWrap: 'break-word' }}>
+                            {`${question.content.substr(0, 20)}`}
+                            {question.content.length > 20 && '...'}
+                          </TableCell>
+                          <TableCell>
+                            {question.tags.map((tag, i) => (
+                              <Chip
+                                key={i}
+                                className={classes.chip}
+                                label={this.getTagById(tag).name}
+                              />
+                            ))}
+                          </TableCell>
+                          <TableCell>{question.question_status && question.question_status.status}</TableCell>
+                        </TableRow>
+                      );
+                    })}
+                </TableBody>
+              </Table>
+            )}
       </Paper>
     );
   }

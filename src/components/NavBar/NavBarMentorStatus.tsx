@@ -1,3 +1,5 @@
+import * as React from 'react';
+
 import {
   Button,
   StyleRulesCallback,
@@ -6,9 +8,9 @@ import {
   WithStyles,
   withStyles,
 } from '@material-ui/core';
+
 import Settings from '@material-ui/icons/Settings';
 import axios from 'axios';
-import * as React from 'react';
 
 enum MentorQueueStatus {
   NOT_IN_QUEUE,

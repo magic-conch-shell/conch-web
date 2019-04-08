@@ -47,9 +47,6 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
     width: '100%',
     display: 'flex',
   },
-  hidden: {
-    display: 'none',
-  },
   loading: {
     margin: 'auto',
   },
@@ -139,10 +136,16 @@ class MainContent extends React.Component<
       return <MentorPage tags={tags} />;
     };
 
-    const profilePage = () => {
+    const profilePage = (
+      props: RouteComponentProps<any, StaticContext, any>
+    ) => {
+      const { location } = props;
+      const { state } = location;
       return user ? (
         <ProfilePage
+          currentTab={state ? state.currentTab && state.currentTab : 0}
           editUser={editUser}
+          mentorDialogOpen={state ? state.mentorDialogOpen && state.mentorDialogOpen : false}
           handleFinishLoading={this.handleFinishedLoading}
           setTimeZone={setTimeZone}
           tags={tags}
@@ -178,7 +181,7 @@ class MainContent extends React.Component<
                 }}
               />
               <Route path="/login" render={authPage} />
-              <Route path="/profile" render={profilePage} />
+              <Route path="/profile" render={(props) => profilePage(props)} />
               <Route path="/queue" render={mentorPage} />
               <Route
                 path="/results/:questionId"

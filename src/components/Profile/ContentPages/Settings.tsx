@@ -1,7 +1,10 @@
+import * as React from 'react';
+
 import {
   Checkbox,
   FormControl,
   FormControlLabel,
+  FormHelperText,
   Grid,
   Input,
   InputLabel,
@@ -10,22 +13,20 @@ import {
   Theme,
   WithStyles,
   withStyles,
-  FormHelperText,
-  Button,
 } from '@material-ui/core';
-import classnames from 'classnames';
-import Downshift from 'downshift';
-import moment from 'moment-timezone';
-import * as React from 'react';
 
+import Downshift from 'downshift';
 import { ISettings } from '../../../interfaces/Settings';
-import { IUser } from '../../../interfaces/User';
-import { ThemeTypes } from '../../../themes/mainTheme';
-import MentorRegistration from '../../Dialog/MentorRegistration';
 import { ITag } from '../../../interfaces/Tag';
+import { IUser } from '../../../interfaces/User';
+import MentorRegistration from '../../Dialog/MentorRegistration';
+import { ThemeTypes } from '../../../themes/mainTheme';
+import classnames from 'classnames';
+import moment from 'moment-timezone';
 
 export interface ISettingsProps extends WithStyles<typeof styles> {
   editUser: (user: IUser) => void;
+  mentorDialogOpen: boolean;
   handleFinishLoading: () => void;
   setTimeZone: (timeZone: string) => void;
   toggleTheme: () => void;
@@ -94,13 +95,14 @@ class Settings extends React.Component<ISettingsProps, ISettingsState> {
     passwordText: '',
     passwordConfirmText: '',
     passwordErrorText: '',
-    mentorDialogOpen: false,
+    mentorDialogOpen: this.props.mentorDialogOpen,
   };
 
   public componentDidMount() {
     const { handleFinishLoading } = this.props;
-    setTimeout(() => handleFinishLoading(), 1000);
+    handleFinishLoading();
   }
+
 
   public handleSelectChange = (tz: string) => {
     this.props.setTimeZone(tz);
@@ -157,13 +159,16 @@ class Settings extends React.Component<ISettingsProps, ISettingsState> {
       passwordErrorText,
       mentorDialogOpen,
     } = this.state;
-    const { classes, tags, toggleTheme, userSettings } = this.props;
+    const { classes, editUser, tags, toggleTheme, user, userSettings } = this.props;
+    console.log(user);
     return (
       <>
         <MentorRegistration
+          editUser={editUser}
           open={mentorDialogOpen}
           closeDialog={this.closeMentorDialog}
           tags={tags}
+          user={user}
         />
         <Grid container={true} spacing={24} className={classes.root}>
           <Grid item={true} xs={6}>
@@ -223,7 +228,7 @@ class Settings extends React.Component<ISettingsProps, ISettingsState> {
                                   className={classnames(
                                     classes.listItem,
                                     highlightedIndex === index &&
-                                      classes.highlighted
+                                    classes.highlighted
                                   )}
                                   key={`${tz}-${index}`}
                                   value={tz}
@@ -290,9 +295,6 @@ class Settings extends React.Component<ISettingsProps, ISettingsState> {
               </FormControl>
               <button type="submit" style={{ display: 'none' }} />
             </form>
-          </Grid>
-          <Grid item={true} xs={6}>
-            <Button onClick={this.openMentorDialog} />
           </Grid>
         </Grid>
       </>

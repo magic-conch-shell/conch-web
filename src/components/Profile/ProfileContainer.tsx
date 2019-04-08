@@ -1,14 +1,6 @@
 import * as React from 'react';
 
-import {
-  Avatar,
-  Grid,
-  StyleRulesCallback,
-  Theme,
-  Typography,
-  WithStyles,
-  withStyles,
-} from '@material-ui/core';
+import { Avatar, Grid, StyleRulesCallback, Theme, Typography, WithStyles, withStyles } from '@material-ui/core';
 
 import { DirectUpload } from 'activestorage';
 import { ISettings } from '../../interfaces/Settings';
@@ -20,6 +12,8 @@ import axios from 'axios';
 
 export interface IProfileContainerProps extends WithStyles<typeof styles> {
   editUser: (user: IUser) => void;
+  currentTab: number;
+  mentorDialogOpen: boolean;
   setTimeZone: (timeZone: string) => void;
   tags: ITag[];
   toggleTheme: () => void;
@@ -86,18 +80,18 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
   },
 });
 
-const PROFILE_TABS = ['Home', 'Settings'];
+const PROFILE_TABS = ['Home', 'Mentor Panel', 'Settings'];
 
 class ProfileContainer extends React.Component<
   IProfileContainerProps,
   IProfileContainerState
-> {
+  > {
   public inputRef: React.RefObject<any>;
 
   constructor(props: IProfileContainerProps) {
     super(props);
     this.state = {
-      currentTab: 0,
+      currentTab: this.props.currentTab,
       loading: true,
     };
     this.inputRef = React.createRef();
@@ -166,7 +160,7 @@ class ProfileContainer extends React.Component<
 
   public render() {
     const { currentTab, loading } = this.state;
-    const { classes, user, ...rest } = this.props;
+    const { classes, currentTab: propsCurrentTab, user, ...rest } = this.props;
     return (
       <Grid item={true} xs={11} className={classes.root}>
         <Grid container={true} spacing={24}>

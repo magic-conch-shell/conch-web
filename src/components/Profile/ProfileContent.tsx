@@ -13,11 +13,13 @@ import Home from './ContentPages/Home';
 import { ISettings } from '../../interfaces/Settings';
 import { ITag } from '../../interfaces/Tag';
 import { IUser } from '../../interfaces/User';
+import MentorPanel from './ContentPages/MentorPanel';
 import Settings from './ContentPages/Settings';
 import classnames from 'classnames';
 
 export interface IProfileContentProps extends WithStyles<typeof styles> {
   currentTab: number;
+  mentorDialogOpen: boolean;
   editUser: (user: IUser) => void;
   handleFinishLoading: () => void;
   loading: boolean;
@@ -58,11 +60,12 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
 class ProfileContent extends React.Component<
   IProfileContentProps,
   IProfileContentState
-> {
+  > {
   public getTabContent = () => {
     const {
       classes,
       currentTab,
+      editUser,
       handleFinishLoading,
       tags,
       user,
@@ -80,8 +83,18 @@ class ProfileContent extends React.Component<
         );
       case 1:
         return (
+          <MentorPanel
+            editUser={editUser}
+            handleFinishLoading={handleFinishLoading}
+            user={user}
+            tags={tags}
+          />
+        );
+      case 2:
+        return (
           <Settings
             user={user}
+            editUser={editUser}
             tags={tags}
             handleFinishLoading={handleFinishLoading}
             {...rest}

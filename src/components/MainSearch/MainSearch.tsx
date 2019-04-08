@@ -209,6 +209,7 @@ class MainSearch extends React.Component<IMainSearchProps, IMainSearchState> {
             {inputState === InputState.EXPANDED && (
               <InputContainer>
                 <MainSearchTitle
+                  key='title'
                   title={title}
                   handleChange={this.handleChangeTitle}
                 />
@@ -224,6 +225,7 @@ class MainSearch extends React.Component<IMainSearchProps, IMainSearchState> {
           >
             <InputContainer>
               <MainSearchInput
+                key='content'
                 inputState={inputState}
                 content={content}
                 handleChange={this.handleChangeContent}
@@ -237,6 +239,7 @@ class MainSearch extends React.Component<IMainSearchProps, IMainSearchState> {
           <div style={{ height: '50px' }}>
             <InputContainer>
               <MainSearchSelect
+                key='select'
                 handleSelectTag={this.handleSelectTag}
                 selectedTags={selectedTags}
                 tags={tags}
@@ -244,6 +247,7 @@ class MainSearch extends React.Component<IMainSearchProps, IMainSearchState> {
             </InputContainer>
           </div>
           <MainSearchTagContainer
+            key='tags'
             handleDeleteTag={this.handleDelete}
             selectedTags={selectedTags}
             tags={tags}

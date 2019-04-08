@@ -9,10 +9,11 @@ import {
   WithStyles,
   withStyles,
 } from '@material-ui/core';
+import { IQuestion, ResultStatusTypes } from '../../interfaces/Question';
 
-import { IQuestion } from '../../interfaces/Question';
 import { ITag } from '../../interfaces/Tag';
 import InputContainer from '../Input/InputContainer';
+import TextareaAutosize from 'react-textarea-autosize';
 
 export interface IResultProps extends WithStyles<typeof styles> {
   result: IQuestion;
@@ -23,21 +24,13 @@ export interface IResultState {
   placeholder?: string;
 }
 
-enum ResultStatusTypes {
-  NOT_SUBMITTED,
-  SUBMITTED,
-  ACCEPTED,
-  ANSWERED,
-  RESOLVED,
-}
-
 const resultStatusText: { [key in ResultStatusTypes]: string } = {
-  [ResultStatusTypes.NOT_SUBMITTED]: 'Not submitted',
-  [ResultStatusTypes.SUBMITTED]: 'Connecting with a Mentor',
-  [ResultStatusTypes.ACCEPTED]: 'A Mentor is currently answering your question',
-  [ResultStatusTypes.ANSWERED]:
+  'NOT_SUBMITTED': 'Not submitted',
+  'SUBMITTED': 'Connecting with a Mentor',
+  'ACCEPTED': 'A Mentor is currently answering your question',
+  'ANSWERED':
     "Your question has been answered. If you are not satisfied with your answer, add a comment and select 'Resubmit'",
-  [ResultStatusTypes.RESOLVED]: 'Your question has been answered.',
+  'RESOLVED': 'Your question has been answered.',
 };
 
 const styles: StyleRulesCallback<any> = (theme: Theme) => ({
@@ -103,7 +96,7 @@ class Result extends React.Component<IResultProps, IResultState> {
             Your Question has been submitted...
           </Typography>
           <Typography variant="caption">
-            Status: {resultStatusText[result.status]}
+            Status: {resultStatusText[result.question_status.status]}
           </Typography>
         </div>
         <div className={classes.resultContent}>
@@ -112,8 +105,7 @@ class Result extends React.Component<IResultProps, IResultState> {
           </Typography>
           {result.title && (
             <InputContainer>
-              <input
-                type="text"
+              <textarea
                 readOnly={true}
                 value={result.title}
                 className={classes.input}
@@ -121,7 +113,7 @@ class Result extends React.Component<IResultProps, IResultState> {
             </InputContainer>
           )}
           <InputContainer>
-            <textarea
+            <TextareaAutosize
               readOnly={true}
               value={result.content}
               className={classes.input}

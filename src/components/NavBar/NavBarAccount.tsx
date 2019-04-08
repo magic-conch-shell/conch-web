@@ -99,7 +99,7 @@ class NavBarAccount extends React.Component<
           <>
             <div className={classes.spacing}>
               <div className={classes.userAccount} onClick={handleClick}>
-                <Avatar className={classes.avatar} src={user.avatar} />
+                <Avatar className={classes.avatar} src={user.avatar_url} />
               </div>
             </div>
             <Menu

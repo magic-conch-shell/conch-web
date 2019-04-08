@@ -9,10 +9,12 @@ import {
 } from '@material-ui/core';
 
 import { ITag } from '../../interfaces/Tag';
+import { IUser } from '../../interfaces/User';
 import ResultContainer from '../Result/ResultContainer';
 
 export interface IResultPageProps extends WithStyles<typeof styles> {
   handleFinishLoading: () => void;
+  user: IUser;
   questionId: string;
   tags: ITag[];
 }
@@ -32,11 +34,11 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
 
 class ResultPage extends React.Component<IResultPageProps, IResultPageState> {
   public render() {
-    const { classes, handleFinishLoading, questionId, tags } = this.props;
+    const { classes, handleFinishLoading, questionId, user, tags } = this.props;
     return (
       <div className={classes.root}>
         <Grid container={true} justify={'center'}>
-          <ResultContainer tags={tags} handleFinishLoading={handleFinishLoading} questionId={questionId} />
+          <ResultContainer tags={tags} handleFinishLoading={handleFinishLoading} questionId={questionId} user={user} />
         </Grid>
       </div>
     );

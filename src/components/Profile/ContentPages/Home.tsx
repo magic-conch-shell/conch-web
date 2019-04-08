@@ -1,3 +1,5 @@
+import * as React from 'react';
+
 import {
   Grid,
   StyleRulesCallback,
@@ -5,15 +7,17 @@ import {
   WithStyles,
   withStyles,
 } from '@material-ui/core';
-import { darken } from '@material-ui/core/styles/colorManipulator';
-import * as React from 'react';
 import { RouteComponentProps, withRouter } from 'react-router';
 
+import { IQuestion } from '../../../interfaces/Question';
 import { ITag } from '../../../interfaces/Tag';
 import { IUser } from '../../../interfaces/User';
 import QuestionList from '../../List/QuestionList';
+import { darken } from '@material-ui/core/styles/colorManipulator';
 
 export interface IHomeProps extends WithStyles<typeof styles> {
+  questions: IQuestion[];
+  setQuestions: (questions: IQuestion[]) => void;
   handleFinishLoading: () => void;
   tags: ITag[];
   user: IUser;
@@ -52,18 +56,18 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
 class Home extends React.Component<
   RouteComponentProps<any> & IHomeProps,
   IHomeState
-> {
+  > {
   public componentDidMount() {
     this.props.handleFinishLoading();
   }
 
   public render() {
-    const { classes, tags, user } = this.props;
+    const { classes, questions, tags, user } = this.props;
     return (
       <div className={classes.root}>
         <Grid container={true} spacing={8} className={classes.contentContainer}>
           <Grid item={true} xs={12} sm={8}>
-            <QuestionList tags={tags} userId={user.id} />
+            <QuestionList questions={questions} tags={tags} userId={user.id} />
           </Grid>
         </Grid>
       </div>

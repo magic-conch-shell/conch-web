@@ -1,3 +1,4 @@
+import { AnswerStatusTypes, IAnswer } from '../../interfaces/Answer';
 import {
   Button,
   CircularProgress,
@@ -9,27 +10,35 @@ import {
   WithStyles,
   withStyles,
 } from '@material-ui/core';
+import { IQuestion, ResultStatusTypes } from '../../interfaces/Question';
 import React, { Component } from 'react';
 import { RouteComponentProps, withRouter } from 'react-router';
+import { getAnswersByUserId, getQuestionsByUserId } from '../../api';
 
 import Close from '@material-ui/icons/Close';
 import FooterContainer from '../Footer/FooterContainer';
+import { IPNMessage } from '../../interfaces/Message';
 import { ISettings } from '../../interfaces/Settings';
 import { IUser } from '../../interfaces/User';
 import { Link } from 'react-router-dom';
 import MainContent from '../MainContent/MainContent';
 import NavBar from '../NavBar/NavBar';
 import NavBarAccount from '../NavBar/NavBarAccount';
+import NavBarListQuestions from '../NavBar/NavBarListQuestions';
 import NavBarMentorSignUp from '../NavBar/NavBarMentorSignUp';
 import NavBarMentorStatus from '../NavBar/NavBarMentorStatus';
 import PubNubReact from 'pubnub-react';
 import axios from 'axios';
 
 export interface IAppState {
+  answers: IAnswer[];
   loading: boolean;
   navBarAnchorEl: HTMLElement | undefined;
+  pn_messages: { [index: string]: IPNMessage[] };
+  questions: IQuestion[];
   snackbarQuestionId: number | undefined;
   snackbarOpen: boolean;
+  snackbarText: string;
   user: IUser | null;
 }
 
@@ -64,9 +73,13 @@ class App extends Component<
   constructor(props: RouteComponentProps<any> & WithStyles<any> & IAppProps) {
     super(props);
     this.state = {
+      answers: [] as IAnswer[],
+      pn_messages: {},
       loading: true,
       snackbarQuestionId: undefined,
       snackbarOpen: false,
+      snackbarText: 'placeholder text',
+      questions: [] as IQuestion[],
       navBarAnchorEl: undefined,
       user: null,
     }
@@ -86,13 +99,13 @@ class App extends Component<
     })
       .then((result) => {
         const { data } = result;
-        const { id, avatar, nickname, email, phone, is_mentor, tags } = data;
+        const { id, avatar_url, nickname, email, phone, is_mentor, tags } = data;
         this.handleSignIn({
           id,
           nickname,
           email,
           phone,
-          avatar,
+          avatar_url,
           is_mentor,
           tags
         });
@@ -117,7 +130,7 @@ class App extends Component<
         channels
       });
     }
-  }
+  };
 
   public finishLoading = () => {
     this.setState({ loading: false });
@@ -132,15 +145,45 @@ class App extends Component<
   };
 
   public handleSignIn = (user: IUser) => {
-    console.log('handle signIn');
-    if (!user.avatar || user.avatar === '') {
-      user.avatar =
+    const { location, history } = this.props;
+    if (!user.avatar_url || user.avatar_url === '') {
+      user.avatar_url =
         'https://www.wittenberg.edu/sites/default/files/2017-11/nouser_0.jpg';
     }
     this.setState({ user }, () => {
       this.pubNubSub();
+      this.getUserData(() => {
+        if (location.pathname === '/login' || location.pathname === '/register') {
+          history.push('/');
+        }
+      });
     });
   };
+
+  public getUserData = (callback: () => void) => {
+    const { user } = this.state;
+    if (user) {
+      getQuestionsByUserId(user.id, (questions) => {
+        this.setQuestions(questions);
+      });
+      if (user.is_mentor) {
+        getAnswersByUserId(user.id, (answers) => {
+          this.setAnswers(answers);
+        });
+      }
+    }
+    this.setState({ loading: false });
+    console.log('[getUserData] callback');
+    callback();
+  };
+
+  public setQuestions = (questions: IQuestion[]) => {
+    this.setState({ questions });
+  };
+
+  public setAnswers = (answers: IAnswer[]) => {
+    this.setState({ answers });
+  }
 
   public pubNubSub = () => {
     const { user } = this.state;
@@ -175,18 +218,60 @@ class App extends Component<
   public handlePubNubMsgAsClient = (msg: any) => {
     console.log('[handlePubNubMsgAsClient]');
     const { message } = msg;
-    const { question_id } = message;
-    console.log(msg);
-    this.setState({ snackbarQuestionId: question_id, snackbarOpen: true });
+    const { status, question_id } = message;
+    if (Object.keys(AnswerStatusTypes).includes(status)) {
+      const text = 'If you are getting this message, please contact support. Client channels should not receive updates about answer statuses.';
+      this.setState({
+        snackbarQuestionId: question_id,
+        snackbarOpen: true,
+        snackbarText: text
+      });
+    } else {
+      const questionStatusText: { [key in ResultStatusTypes]: string } = {
+        'NOT_SUBMITTED': 'This should never show up!',
+        'SUBMITTED': 'Your question has been submitted. Should never show up!',
+        'ACCEPTED': 'Your question has been accepted by a mentor. Awaiting answer...',
+        'ANSWERED': 'Your question has been answered by a mentor. Please accept or reject the answer.',
+        'RESOLVED': 'Your question has been resolved successfully.'
+      };
+
+      this.setState({
+        snackbarQuestionId: question_id,
+        snackbarOpen: true,
+        snackbarText: questionStatusText[status],
+      });
+    }
   };
 
   public handlePubNubMsgAsMentor = (msg: any) => {
     console.log('[handlePubNubMsgAsMentor]');
     const { message } = msg;
-    const { question_id } = message;
-    console.log(msg);
-    this.setState({ snackbarQuestionId: question_id, snackbarOpen: true });
-  }
+    const { status, question_id } = message;
+
+    if (Object.keys(AnswerStatusTypes).includes(status)) {
+      const text = status === AnswerStatusTypes.PASSED ?
+        'One of your answers has been declined.' : 'One of your answers has been accepted.';
+      console.log(status, AnswerStatusTypes.PASSED);
+      this.setState({
+        snackbarQuestionId: question_id,
+        snackbarOpen: true,
+        snackbarText: text
+      })
+    } else {
+      const questionStatusText: { [key in ResultStatusTypes]: string } = {
+        'NOT_SUBMITTED': 'This should never show up!',
+        'SUBMITTED': 'Your question has been submitted. Should never show up!',
+        'ACCEPTED': 'You have been assigned to a question. Good luck!',
+        'ANSWERED': 'You have submitted your answer to a question. Probably don\'t need to show this.',
+        'RESOLVED': 'One of your questions has been accepted. This is from the question side, can probably remove'
+      };
+      this.setState({
+        snackbarQuestionId: question_id,
+        snackbarOpen: true,
+        snackbarText: questionStatusText[status],
+      });
+    }
+  };
 
   public handleSignOut = () => {
     axios({
@@ -208,7 +293,7 @@ class App extends Component<
   };
 
   public render() {
-    const { navBarAnchorEl, loading, snackbarOpen, snackbarQuestionId, user } = this.state;
+    const { answers, navBarAnchorEl, loading, snackbarOpen, snackbarQuestionId, snackbarText, questions, user } = this.state;
     const {
       classes,
       location,
@@ -234,7 +319,10 @@ class App extends Component<
                 {user && (user as IUser).is_mentor ? (
                   <NavBarMentorStatus />
                 ) : (
-                    <NavBarMentorSignUp />
+                    <>
+                      <NavBarListQuestions unread={questions.filter(q => q.is_dirty).length} />
+                      <NavBarMentorSignUp />
+                    </>
                   )}
                 <NavBarAccount
                   anchorEl={navBarAnchorEl}
@@ -253,6 +341,10 @@ class App extends Component<
                 setTimeZone={setTimeZone}
                 toggleTheme={toggleTheme}
                 editUser={this.editUser}
+                questions={questions}
+                answers={answers}
+                setQuestions={this.setQuestions}
+                setAnswers={this.setAnswers}
               />
               <Snackbar
                 anchorOrigin={{
@@ -267,12 +359,12 @@ class App extends Component<
                   className={classes.snackbarContent}
                   message={
                     <span id="client-snackbar" className={classes.snackbarMessage}>
-                      🐚 Message from PubNub! Fill with context!
+                      🐚 {snackbarText}
                     </span>
                   }
                   action={[
                     <Link key={snackbarQuestionId} to={`/results/${snackbarQuestionId}`} style={{ textDecoration: 'none' }}>
-                      <Button color='primary' variant='flat' size='small'>Go To Question</Button>
+                      <Button color='primary' variant='text' size='small'>Go To Question</Button>
                     </Link>,
                     <IconButton
                       key='close'

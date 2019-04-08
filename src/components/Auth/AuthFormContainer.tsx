@@ -193,7 +193,7 @@ class AuthFormContainer extends React.Component<
         const { data } = result;
         const {
           id,
-          avatar,
+          avatar_url,
           nickname,
           email: userEmail,
           phone,
@@ -205,7 +205,7 @@ class AuthFormContainer extends React.Component<
           nickname,
           email: userEmail,
           phone,
-          avatar,
+          avatar_url,
           is_mentor,
           tags
         });
@@ -238,7 +238,7 @@ class AuthFormContainer extends React.Component<
         const { data } = result;
         const {
           id,
-          avatar,
+          avatar_url,
           nickname: userNickname,
           email: userEmail,
           phone,
@@ -250,7 +250,7 @@ class AuthFormContainer extends React.Component<
           nickname: userNickname,
           email: userEmail,
           phone,
-          avatar,
+          avatar_url,
           is_mentor,
           tags
         });

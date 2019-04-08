@@ -3,6 +3,8 @@ import * as React from 'react';
 import { Avatar, Grid, StyleRulesCallback, Theme, Typography, WithStyles, withStyles } from '@material-ui/core';
 
 import { DirectUpload } from 'activestorage';
+import { IAnswer } from '../../interfaces/Answer';
+import { IQuestion } from '../../interfaces/Question';
 import { ISettings } from '../../interfaces/Settings';
 import { ITag } from '../../interfaces/Tag';
 import { IUser } from '../../interfaces/User';
@@ -11,8 +13,12 @@ import ProfileTabList from './ProfileTabList';
 import axios from 'axios';
 
 export interface IProfileContainerProps extends WithStyles<typeof styles> {
+  answers: IAnswer[];
+  setAnswers: (answers: IAnswer[]) => void;
+  questions: IQuestion[];
+  setQuestions: (questions: IQuestion[]) => void;
   editUser: (user: IUser) => void;
-  currentTab: number;
+  currentTab: TabTypes;
   mentorDialogOpen: boolean;
   setTimeZone: (timeZone: string) => void;
   tags: ITag[];
@@ -22,7 +28,7 @@ export interface IProfileContainerProps extends WithStyles<typeof styles> {
 }
 
 export interface IProfileContainerState {
-  currentTab: number;
+  currentTab: TabTypes;
   loading: boolean;
 }
 
@@ -80,7 +86,11 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
   },
 });
 
-const PROFILE_TABS = ['Home', 'Mentor Panel', 'Settings'];
+export enum TabTypes {
+  Home = 'Home',
+  MentorPanel = 'Mentor Panel',
+  Settings = 'Settings'
+}
 
 class ProfileContainer extends React.Component<
   IProfileContainerProps,
@@ -98,33 +108,37 @@ class ProfileContainer extends React.Component<
   }
 
   public uploadFile = (file: any) => {
-    // your form needs the file_field direct_upload: true, which
-    //  provides data-direct-upload-url
+    const { editUser, user } = this.props;
     const url = this.inputRef.current.dataset.directUploadUrl;
     const upload = new DirectUpload(file, url);
 
     upload.create((error: any, blob: any) => {
       if (error) {
-        console.log(error);
+        console.dir(error);
       } else {
+        console.log(blob);
         axios({
           method: 'put',
           url: `/api/users/${this.props.user.id}`,
+          // params: {
+          //   avatar: `https://s3.ca-central-1.amazonaws.com/conch-avatars/${blob.key}`,
+          // },
           params: {
             avatar: blob.signed_id,
-          },
+          }
         })
           .then((result) => {
-            console.log(result);
-            // make request to upload
+            const newUser = { ...user };
+            newUser.avatar_url = `https://s3.ca-central-1.amazonaws.com/conch-avatars/${blob.key}`;
+            editUser(newUser);
           })
           .catch((err) => console.log(err));
       }
     });
   };
 
-  public changeCurrentTab = (newTabIndex: number) => {
-    this.setState({ currentTab: newTabIndex });
+  public changeCurrentTab = (newTab: TabTypes) => {
+    this.setState({ currentTab: newTab });
   };
 
   public handleClick = () => {
@@ -158,9 +172,16 @@ class ProfileContainer extends React.Component<
     }
   };
 
+  public getTabs = () => {
+    const { user } = this.props;
+    const userTabs = Object.values(TabTypes);
+    return user.is_mentor ? userTabs : userTabs.filter(t => t !== TabTypes.MentorPanel);
+  }
+
   public render() {
     const { currentTab, loading } = this.state;
     const { classes, currentTab: propsCurrentTab, user, ...rest } = this.props;
+    const tabs = this.getTabs();
     return (
       <Grid item={true} xs={11} className={classes.root}>
         <Grid container={true} spacing={24}>
@@ -170,7 +191,7 @@ class ProfileContainer extends React.Component<
                 className={classes.profileAvatarInputContainer}
                 onClick={this.handleClick}
               >
-                <Avatar className={classes.avatar} src={user.avatar} />
+                <Avatar className={classes.avatar} src={user.avatar_url} />
                 <input
                   type="file"
                   ref={this.inputRef}
@@ -190,7 +211,7 @@ class ProfileContainer extends React.Component<
             <ProfileTabList
               currentTab={currentTab}
               handleClick={this.changeCurrentTab}
-              tabs={PROFILE_TABS}
+              tabs={tabs}
             />
           </Grid>
           <Grid item={true} xs={8} md={10}>

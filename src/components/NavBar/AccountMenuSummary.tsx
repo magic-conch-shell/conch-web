@@ -42,12 +42,12 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
 class AccountMenuSummary extends React.Component<
   IAccountMenuSummaryProps,
   IAccountMenuSummaryState
-> {
+  > {
   public render() {
     const { classes, user } = this.props;
     return (
       <div className={classes.root}>
-        <Avatar className={classes.avatar} src={user.avatar} />
+        <Avatar className={classes.avatar} src={user.avatar_url} />
         <div className={classes.userInfo}>
           <Typography className={classes.userNickName}>
             {user.nickname}

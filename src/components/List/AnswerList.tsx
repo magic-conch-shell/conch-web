@@ -1,7 +1,6 @@
 import * as React from 'react';
 
 import {
-  Chip,
   Paper,
   StyleRulesCallback,
   Table,
@@ -16,17 +15,14 @@ import {
 import { RouteComponentProps, withRouter } from 'react-router';
 import { darken, lighten } from '@material-ui/core/styles/colorManipulator';
 
-import { IQuestion } from '../../interfaces/Question';
-import { ITag } from '../../interfaces/Tag';
-import classnames from 'classnames';
+import { IAnswer } from '../../interfaces/Answer';
 
-export interface IQuestionListProps extends WithStyles<typeof styles> {
+export interface IAnswerListProps extends WithStyles<typeof styles> {
   userId?: number;
-  tags: ITag[];
-  questions: IQuestion[];
+  answers: IAnswer[];
 }
 
-export interface IQuestionListState {
+export interface IAnswerListState {
   errorText: string;
 }
 
@@ -70,9 +66,9 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
   },
 });
 
-class QuestionList extends React.Component<
-  RouteComponentProps<any> & IQuestionListProps,
-  IQuestionListState
+class AnswerList extends React.Component<
+  RouteComponentProps<any> & IAnswerListProps,
+  IAnswerListState
   > {
   public state = {
     errorText: '',
@@ -82,71 +78,42 @@ class QuestionList extends React.Component<
     this.props.history.push(`/results/${id}`);
   };
 
-  public getTagById = (id: number) => {
-    const { tags } = this.props;
-    const len = tags.length;
-    let result = {} as { id: number; name: string };
-    for (let i = 0; i < len; i += 1) {
-      if (tags[i].id === id) {
-        result = tags[i];
-        break;
-      }
-    }
-    return result;
-  };
-
   public render() {
-    const { classes, questions } = this.props;
+    const { classes, answers } = this.props;
     return (
       <Paper className={classes.paper} elevation={4}>
         <Table className={classes.table} padding="dense">
           <TableHead className={classes.tableHeader}>
             <TableRow>
               <TableCell>Date</TableCell>
-              <TableCell>Title</TableCell>
-              <TableCell>Question</TableCell>
-              <TableCell>Tags</TableCell>
-              <TableCell>Status</TableCell>
+              <TableCell>Answer</TableCell>
+              <TableCell>Selected</TableCell>
             </TableRow>
           </TableHead>
           <TableBody className={classes.tableBody}>
-            {questions
+            {answers
               .sort((a, b) => {
                 const aDate = new Date(a.created_at);
                 const bDate = new Date(b.created_at);
                 return aDate > bDate ? -1 : 1;
               })
-              .map((question, index) => {
-                const createdAt = new Date(question.created_at);
+              .map((answer, index) => {
+                const createdAt = new Date(answer.created_at);
                 return (
                   <TableRow
                     key={index}
-                    onClick={() => this.handleLink(question.id)}
-                    className={classnames(classes.tableRow, question.is_dirty && classes.dirty)}
+                    onClick={() => this.handleLink(answer.question_id)}
+                    className={classes.tableRow}
                     hover={true}
                   >
                     <TableCell>
                       {`${createdAt.toLocaleDateString()}\n${createdAt.toLocaleTimeString()}`}
                     </TableCell>
-                    <TableCell>
-                      {question.title.length > 0 &&
-                        `${question.title.substr(0, 20)}`}
-                      {question.title.length > 20 && '...'}
-                    </TableCell>
                     <TableCell style={{ wordWrap: 'break-word' }}>
-                      {`${question.content.substr(0, 20)}`}
-                      {question.content.length > 20 && '...'}
+                      {`${answer.content.substr(0, 20)}`}
+                      {answer.content.length > 20 && '...'}
                     </TableCell>
-                    <TableCell>
-                      {question.tags.map((tag, i) => (
-                        <Chip
-                          key={i}
-                          className={classes.chip}
-                          label={this.getTagById(tag).name}
-                        />
-                      ))}
-                    </TableCell>
-                    <TableCell>{question.question_status && question.question_status.status}</TableCell>
+                    <TableCell>{answer.selected.toString()}</TableCell>
                   </TableRow>
                 );
               })}
@@ -157,4 +124,4 @@ class QuestionList extends React.Component<
   }
 }
 
-export default withRouter(withStyles(styles)(QuestionList));
+export default withRouter(withStyles(styles)(AnswerList));

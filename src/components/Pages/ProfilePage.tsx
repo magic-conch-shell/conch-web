@@ -7,15 +7,21 @@ import {
   WithStyles,
   withStyles,
 } from '@material-ui/core';
+import ProfileContainer, { TabTypes } from '../Profile/ProfileContainer';
 
+import { IAnswer } from '../../interfaces/Answer';
+import { IQuestion } from '../../interfaces/Question';
 import { ISettings } from '../../interfaces/Settings';
 import { ITag } from '../../interfaces/Tag';
 import { IUser } from '../../interfaces/User';
-import ProfileContainer from '../Profile/ProfileContainer';
 
 export interface IProfilePageProps extends WithStyles<typeof styles> {
+  answers: IAnswer[];
+  setAnswers: (answers: IAnswer[]) => void;
+  questions: IQuestion[];
+  setQuestions: (questions: IQuestion[]) => void;
   editUser: (user: IUser) => void;
-  currentTab: number;
+  currentTab: TabTypes;
   mentorDialogOpen: boolean;
   handleFinishLoading: () => void;
   setTimeZone: (timeZone: string) => void;

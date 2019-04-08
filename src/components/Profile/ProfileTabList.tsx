@@ -12,11 +12,12 @@ import {
 } from '@material-ui/core';
 import { darken, lighten } from '@material-ui/core/styles/colorManipulator';
 
+import { TabTypes } from './ProfileContainer';
 import classnames from 'classnames';
 
 export interface IProfileTabListProps extends WithStyles<typeof styles> {
-  currentTab: number;
-  handleClick: (index: number) => void;
+  currentTab: TabTypes;
+  handleClick: (newTab: TabTypes) => void;
   tabs: string[];
 }
 
@@ -58,26 +59,28 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
 class ProfileTabList extends React.Component<
   IProfileTabListProps,
   IProfileTabListState
-> {
+  > {
   public render() {
     const { classes, currentTab, handleClick, tabs } = this.props;
     return (
       <Paper className={classes.root} elevation={4}>
         <List className={classes.profileTabList}>
-          {tabs.map((tab, index) => (
-            <ListItem
-              key={index}
-              onClick={() => handleClick(index)}
-              className={classnames(
-                currentTab === index
-                  ? classes.selected
-                  : classes.listItemHoverable,
-                classes.listItem
-              )}
-            >
-              <ListItemText primary={tab} />
-            </ListItem>
-          ))}
+          {tabs
+            .filter(t => isNaN(parseInt(t, 10)))
+            .map((tab, index) => (
+              <ListItem
+                key={index}
+                onClick={() => handleClick(tab as TabTypes)}
+                className={classnames(
+                  currentTab === tab
+                    ? classes.selected
+                    : classes.listItemHoverable,
+                  classes.listItem
+                )}
+              >
+                <ListItemText primary={tab} />
+              </ListItem>
+            ))}
         </List>
       </Paper>
     );

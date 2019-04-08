@@ -17,6 +17,8 @@ import {
 } from 'react-router';
 
 import AuthPage from '../Pages/AuthPage';
+import { IAnswer } from '../../interfaces/Answer';
+import { IQuestion } from '../../interfaces/Question';
 import { ISettings } from '../../interfaces/Settings';
 import { ITag } from '../../interfaces/Tag';
 import { IUser } from '../../interfaces/User';
@@ -24,6 +26,7 @@ import MainPage from '../Pages/MainPage';
 import MentorPage from '../Pages/MentorPage';
 import ProfilePage from '../Pages/ProfilePage';
 import ResultPage from '../Pages/ResultPage';
+import { TabTypes } from '../Profile/ProfileContainer';
 import axios from 'axios';
 import classnames from 'classnames';
 
@@ -34,6 +37,10 @@ export interface IMainContentProps {
   toggleTheme: () => void;
   user: IUser | null;
   userSettings: ISettings;
+  questions: IQuestion[];
+  answers: IAnswer[];
+  setQuestions: (questions: IQuestion[]) => void;
+  setAnswers: (answers: IAnswer[]) => void;
 }
 
 export interface IMainContentState {
@@ -107,6 +114,10 @@ class MainContent extends React.Component<
       toggleTheme,
       user,
       userSettings,
+      answers,
+      setAnswers,
+      questions,
+      setQuestions
     } = this.props;
     const { loading, tags } = this.state;
     const homePage = () => {
@@ -129,7 +140,11 @@ class MainContent extends React.Component<
       props: RouteComponentProps<any, StaticContext, any>
     ) => {
       const { questionId } = props.match.params;
-      return <ResultPage key={questionId} tags={tags} questionId={questionId} handleFinishLoading={this.handleFinishedLoading} />;
+      return user ? (
+        <ResultPage key={questionId} tags={tags} questionId={questionId} user={user} handleFinishLoading={this.handleFinishedLoading} />
+      ) : (
+          <Redirect to='/login' />
+        );
     };
 
     const mentorPage = () => {
@@ -143,7 +158,11 @@ class MainContent extends React.Component<
       const { state } = location;
       return user ? (
         <ProfilePage
-          currentTab={state ? state.currentTab && state.currentTab : 0}
+          questions={questions}
+          answers={answers}
+          setQuestions={setQuestions}
+          setAnswers={setAnswers}
+          currentTab={state ? state.currentTab && state.currentTab : TabTypes.Home}
           editUser={editUser}
           mentorDialogOpen={state ? state.mentorDialogOpen && state.mentorDialogOpen : false}
           handleFinishLoading={this.handleFinishedLoading}

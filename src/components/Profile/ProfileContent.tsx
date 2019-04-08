@@ -10,15 +10,22 @@ import {
 } from '@material-ui/core';
 
 import Home from './ContentPages/Home';
+import { IAnswer } from '../../interfaces/Answer';
+import { IQuestion } from '../../interfaces/Question';
 import { ISettings } from '../../interfaces/Settings';
 import { ITag } from '../../interfaces/Tag';
 import { IUser } from '../../interfaces/User';
 import MentorPanel from './ContentPages/MentorPanel';
 import Settings from './ContentPages/Settings';
+import { TabTypes } from './ProfileContainer';
 import classnames from 'classnames';
 
 export interface IProfileContentProps extends WithStyles<typeof styles> {
-  currentTab: number;
+  answers: IAnswer[];
+  setAnswers: (answers: IAnswer[]) => void;
+  questions: IQuestion[];
+  setQuestions: (questions: IQuestion[]) => void;
+  currentTab: TabTypes;
   mentorDialogOpen: boolean;
   editUser: (user: IUser) => void;
   handleFinishLoading: () => void;
@@ -67,30 +74,38 @@ class ProfileContent extends React.Component<
       currentTab,
       editUser,
       handleFinishLoading,
+      answers,
+      setAnswers,
+      questions,
+      setQuestions,
       tags,
       user,
       ...rest
     } = this.props;
 
     switch (currentTab) {
-      case 0:
+      case TabTypes.Home:
         return (
           <Home
             handleFinishLoading={handleFinishLoading}
             tags={tags}
             user={user}
+            questions={questions}
+            setQuestions={setQuestions}
           />
         );
-      case 1:
+      case TabTypes.MentorPanel:
         return (
           <MentorPanel
             editUser={editUser}
             handleFinishLoading={handleFinishLoading}
             user={user}
             tags={tags}
+            answers={answers}
+            setAnswers={setAnswers}
           />
         );
-      case 2:
+      case TabTypes.Settings:
         return (
           <Settings
             user={user}

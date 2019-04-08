@@ -2,26 +2,34 @@ import * as React from 'react';
 
 import {
   Chip,
+  IconButton,
   Paper,
   StyleRulesCallback,
   Theme,
+  Tooltip,
   Typography,
   WithStyles,
   withStyles,
 } from '@material-ui/core';
 import { IQuestion, ResultStatusTypes } from '../../interfaces/Question';
 
+import { IAnswer } from '../../interfaces/Answer';
 import { ITag } from '../../interfaces/Tag';
+import { IUser } from '../../interfaces/User';
 import InputContainer from '../Input/InputContainer';
+import Send from '@material-ui/icons/Send';
 import TextareaAutosize from 'react-textarea-autosize';
+import axios from 'axios';
 
 export interface IResultProps extends WithStyles<typeof styles> {
+  answers: IAnswer[];
+  user: IUser;
   result: IQuestion;
   tags: ITag[];
 }
 
 export interface IResultState {
-  placeholder?: string;
+  answerText: string;
 }
 
 const resultStatusText: { [key in ResultStatusTypes]: string } = {
@@ -74,6 +82,10 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
 });
 
 class Result extends React.Component<IResultProps, IResultState> {
+  public state = {
+    answerText: ''
+  };
+
   public getTagById = (id: number) => {
     const { tags } = this.props;
     const len = tags.length;
@@ -87,56 +99,188 @@ class Result extends React.Component<IResultProps, IResultState> {
     return result;
   };
 
+  public _handleAnswerChange = (ev: any) => {
+    this.setState({ answerText: ev.target.value });
+  };
+
+  public _handleSubmit = () => {
+    if (this.submitIsDisabled()) {
+      return;
+    } else {
+      const { answerText } = this.state;
+      const { result } = this.props;
+      axios({
+        method: 'post',
+        url: `/api/questions/${result.id}/answers`,
+        params: {
+          content: answerText
+        }
+      })
+        .then((res) => console.log(res))
+        .catch((err) => console.log(err));
+    }
+  }
+
+  public submitIsDisabled = () => {
+    const { answerText } = this.state;
+    const { result } = this.props;
+
+    if (answerText.length === 0) { return true; }
+    if (result.question_status.status !== ResultStatusTypes.ACCEPTED) { return true; }
+
+    return false;
+  }
+
   public render() {
-    const { classes, result } = this.props;
+    const { answerText } = this.state;
+    const { answers, classes, user, result } = this.props;
     return (
       <Paper className={classes.root} elevation={4}>
-        <div className={classes.resultHeader}>
-          <Typography variant="h5" style={{ fontVariant: 'small-caps' }}>
-            Your Question has been submitted...
-          </Typography>
-          <Typography variant="caption">
-            Status: {resultStatusText[result.question_status.status]}
-          </Typography>
-        </div>
-        <div className={classes.resultContent}>
-          <Typography variant="caption">
-            <strong>Your Question:</strong>
-          </Typography>
-          {result.title && (
-            <InputContainer>
-              <textarea
-                readOnly={true}
-                value={result.title}
-                className={classes.input}
-              />
-            </InputContainer>
+        {(user.is_mentor && result.question_status.mentor_id === user.id) ? (
+          <>
+            <div className={classes.resultContent}>
+              <Typography variant="caption">
+                <strong>Question:</strong>
+              </Typography>
+              {result.title && (
+                <InputContainer>
+                  <textarea
+                    readOnly={true}
+                    value={result.title}
+                    className={classes.input}
+                  />
+                </InputContainer>
+              )}
+              <InputContainer>
+                <TextareaAutosize
+                  readOnly={true}
+                  value={result.content}
+                  className={classes.input}
+                />
+              </InputContainer>
+              {result.tags.map((tag) => {
+                return (
+                  <Chip
+                    key={tag}
+                    className={classes.chip}
+                    label={this.getTagById(tag).name}
+                  />
+                );
+              })}
+              <Typography align="right" variant="caption">
+                <strong>Submitted:</strong>{' '}
+                {new Date(result.created_at).toLocaleDateString()}{' '}
+                {new Date(result.created_at).toLocaleTimeString()}
+              </Typography>
+            </div>
+            {answers.length > 0 &&
+              <div className={classes.resultContent}>
+                <Typography variant='caption'>
+                  <strong>Previous Answers:</strong>
+                </Typography>
+                {answers.map((ans, index) => (
+                  <InputContainer key={index}>
+                    <TextareaAutosize
+                      readOnly={true}
+                      value={ans.content}
+                      className={classes.input}
+                    />
+                  </InputContainer>
+                ))}
+              </div>
+            }
+            <div className={classes.resultContent}>
+              <Typography variant='caption'>
+                <strong>Your Answer:</strong>
+              </Typography>
+              <InputContainer>
+                <TextareaAutosize
+                  className={classes.input}
+                  name='answer'
+                  placeholder='Enter Answer'
+                  autoFocus={true}
+                  required={true}
+                  value={answerText}
+                  onChange={this._handleAnswerChange}
+                />
+                <Tooltip title='Submit Answer' placement='right'>
+                  <IconButton
+                    className={classes.inputIcon}
+                    onClick={this._handleSubmit}
+                    disabled={this.submitIsDisabled()}
+                    tabIndex={-1}
+                  >
+                    <Send />
+                  </IconButton>
+                </Tooltip>
+              </InputContainer>
+            </div>
+          </>
+        ) : (
+            <>
+              <div className={classes.resultHeader}>
+                <Typography variant="h5" style={{ fontVariant: 'small-caps' }}>
+                  Your Question has been submitted...
+              </Typography>
+                <Typography variant="caption">
+                  Status: {resultStatusText[result.question_status.status]}
+                </Typography>
+              </div>
+              <div className={classes.resultContent}>
+                <Typography variant="caption">
+                  <strong>Your Question:</strong>
+                </Typography>
+                {result.title && (
+                  <InputContainer>
+                    <textarea
+                      readOnly={true}
+                      value={result.title}
+                      className={classes.input}
+                    />
+                  </InputContainer>
+                )}
+                <InputContainer>
+                  <TextareaAutosize
+                    readOnly={true}
+                    value={result.content}
+                    className={classes.input}
+                  />
+                </InputContainer>
+                {result.tags.map((tag) => {
+                  return (
+                    <Chip
+                      key={tag}
+                      className={classes.chip}
+                      label={this.getTagById(tag).name}
+                    />
+                  );
+                })}
+                <Typography align="right" variant="caption">
+                  <strong>Submitted:</strong>{' '}
+                  {new Date(result.created_at).toLocaleDateString()}{' '}
+                  {new Date(result.created_at).toLocaleTimeString()}
+                </Typography>
+              </div>
+              {answers.length > 0 &&
+                <div className={classes.resultContent}>
+                  <Typography variant='caption'>
+                    <strong>Previous Answers:</strong>
+                  </Typography>
+                  {answers.map((ans, index) => (
+                    <InputContainer key={index}>
+                      <TextareaAutosize
+                        readOnly={true}
+                        value={ans.content}
+                        className={classes.input}
+                      />
+                    </InputContainer>
+                  ))}
+                </div>
+              }
+            </>
           )}
-          <InputContainer>
-            <TextareaAutosize
-              readOnly={true}
-              value={result.content}
-              className={classes.input}
-            />
-          </InputContainer>
-          {result.tags.map((tag) => {
-            return (
-              <Chip
-                key={tag}
-                className={classes.chip}
-                label={this.getTagById(tag).name}
-              />
-            );
-          })}
-          <Typography align="right" variant="caption">
-            <strong>Submitted:</strong>{' '}
-            {new Date(result.created_at).toLocaleDateString()}{' '}
-            {new Date(result.created_at).toLocaleTimeString()}
-          </Typography>
-        </div>
-        {/* <div className={classes.resultAnim}>MAKE ME</div> */}
       </Paper>
-    );
+    )
   }
 }
 

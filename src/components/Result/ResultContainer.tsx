@@ -7,9 +7,11 @@ import {
   WithStyles,
   withStyles,
 } from '@material-ui/core';
+import { IQuestion, ResultStatusTypes } from '../../interfaces/Question';
 
-import { IQuestion } from '../../interfaces/Question';
+import { IAnswer } from '../../interfaces/Answer';
 import { ITag } from '../../interfaces/Tag';
+import { IUser } from '../../interfaces/User';
 import Result from './Result';
 import axios from 'axios';
 import classnames from 'classnames';
@@ -17,11 +19,13 @@ import posed from 'react-pose';
 
 export interface IResultContainerProps extends WithStyles<typeof styles> {
   handleFinishLoading: () => void;
+  user: IUser;
   tags: ITag[];
   questionId: string;
 }
 
 export interface IResultContainerState {
+  answers: IAnswer[];
   visible: boolean;
   question: IQuestion;
 }
@@ -53,6 +57,7 @@ class ResultContainer extends React.Component<
   public signal = axios.CancelToken.source();
 
   public state = {
+    answers: [] as IAnswer[],
     visible: false,
     question: {} as IQuestion,
   };
@@ -71,13 +76,26 @@ class ResultContainer extends React.Component<
       })
         .then((result) => {
           const { data } = result;
-          this.setState({ question: data, visible: true }, () => {
+          this.setState({ question: data }, () => {
+            const qstatus = this.state.question.question_status.status;
+            if (qstatus === ResultStatusTypes.ANSWERED || qstatus === ResultStatusTypes.RESOLVED) {
+              axios({
+                method: 'get',
+                url: `/api/questions/${questionId}/answers`
+              })
+                .then((res) => {
+                  const { data: answerData } = res;
+                  this.setState({ answers: answerData });
+                })
+                .catch((e) => console.log(e));
+            }
             handleFinishLoading();
           });
         })
         .catch((err) => {
           console.log(err);
-        });
+        })
+        .finally(() => this.setState({ visible: true }));
     }
   }
 
@@ -86,15 +104,15 @@ class ResultContainer extends React.Component<
   }
 
   public render() {
-    const { question, visible } = this.state;
-    const { classes, tags } = this.props;
+    const { answers, question, visible } = this.state;
+    const { classes, user, tags } = this.props;
     return (
       <Grid item={true} xs={12} sm={6} md={4} lg={4} className={classes.root}>
         <OpacityContainer
           className={classnames(classes.container, classes.vCenter)}
           pose={visible ? 'visible' : 'hidden'}
         >
-          {visible && <Result result={question} tags={tags} />}
+          {visible && <Result answers={answers} result={question} tags={tags} user={user} />}
         </OpacityContainer>
       </Grid>
     );

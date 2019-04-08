@@ -1,9 +1,10 @@
-export type ResultStatusTypes =
-  'NOT_SUBMITTED' |
-  'SUBMITTED' |
-  'ACCEPTED' |
-  'ANSWERED' |
-  'RESOLVED';
+export enum ResultStatusTypes {
+  NOT_SUBMITTED = 'NOT_SUBMITTED',
+  SUBMITTED = 'SUBMITTED',
+  ACCEPTED = 'ACCEPTED',
+  ANSWERED = 'ANSWERED',
+  RESOLVED = 'RESOLVED'
+}
 
 export interface IQuestion {
   content: string;
@@ -14,6 +15,7 @@ export interface IQuestion {
   updated_at: string;
   user_id: number;
   tags: number[];
+  is_dirty: boolean;
   question_status: IQuestionStatus;
 }
 

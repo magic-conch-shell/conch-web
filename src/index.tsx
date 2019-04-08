@@ -1,13 +1,21 @@
 import './index.css';
 
-import axios from 'axios';
-import React from 'react';
-import ReactDOM from 'react-dom';
+import * as serviceWorker from './serviceWorker';
+
 import { BrowserRouter, HashRouter } from 'react-router-dom';
 
 import AppContainer from './components/AppContainer/AppContainer';
-import * as serviceWorker from './serviceWorker';
+import React from 'react';
+import ReactDOM from 'react-dom';
+import axios from 'axios';
 
+// import { whyDidYouUpdate } from 'why-did-you-update';
+
+// if (process.env.NODE_ENV !== 'production') {
+//   whyDidYouUpdate(React);
+// }
+
+// axios.defaults.baseURL = process.env.REACT_APP_BACKEND_BASE_URL;
 axios.defaults.headers.common.Authorization = 'AUTH TOKEN';
 axios.defaults.headers.post['Content-Type'] = 'application/json';
 

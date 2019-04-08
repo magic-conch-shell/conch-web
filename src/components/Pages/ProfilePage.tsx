@@ -15,6 +15,8 @@ import ProfileContainer from '../Profile/ProfileContainer';
 
 export interface IProfilePageProps extends WithStyles<typeof styles> {
   editUser: (user: IUser) => void;
+  currentTab: number;
+  mentorDialogOpen: boolean;
   handleFinishLoading: () => void;
   setTimeZone: (timeZone: string) => void;
   tags: ITag[];
@@ -38,7 +40,7 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
 class ProfilePage extends React.Component<
   IProfilePageProps,
   IProfilePageState
-> {
+  > {
   public componentDidMount() {
     this.props.handleFinishLoading();
   }

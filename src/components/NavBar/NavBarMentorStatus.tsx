@@ -48,10 +48,12 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
     to: { transform: 'rotate(360deg)' },
   },
   queueDefault: {
-    backgroundColor: 'blue',
+    color: theme.palette.primary.main,
+    borderColor: theme.palette.primary.main,
   },
   queueReady: {
-    backgroundColor: 'green',
+    color: theme.palette.text.primary,
+    borderColor: theme.palette.text.primary,
   },
   queueBusy: {
     backgroundColor: 'red',
@@ -59,12 +61,26 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
   pendingIcon: {
     animationName: '$spin',
   },
+  timeInQueue: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    textAlign: 'right',
+    marginRight: theme.spacing.unit * 2
+  },
+  queueTimer: {
+    fontSize: '1em',
+    width: '100%'
+  },
+  queueLabel: {
+    fontSize: '0.75em',
+    width: '100%'
+  }
 });
 
 class NavBarMentorStatus extends React.Component<
   INavBarMentorStatusProps,
   INavBarMentorStatusState
-> {
+  > {
   public state = {
     interval: null,
     pending: false,
@@ -138,19 +154,25 @@ class NavBarMentorStatus extends React.Component<
         : MentorQueueStatus.NOT_IN_QUEUE;
     return (
       <>
-        <Typography variant="overline">{timeInQueue}</Typography>
+        {queueStatus !== MentorQueueStatus.NOT_IN_QUEUE &&
+          <div className={classes.timeInQueue}>
+            <Typography className={classes.queueLabel} variant="caption">Time in Queue:</Typography>
+            <Typography className={classes.queueTimer}>{timeInQueue}</Typography>
+          </div>
+        }
         {pending ? (
           <Button className={classes.pendingBtn} disabled={true}>
             <Settings className={classes.pendingIcon} /> Working
           </Button>
         ) : (
-          <Button
-            onClick={() => this.setQueueStatus(nextStatus)}
-            className={classes[queueButtonClass[queueStatus]]}
-          >
-            {queueButtonText[queueStatus]}
-          </Button>
-        )}
+            <Button
+              onClick={() => this.setQueueStatus(nextStatus)}
+              className={classes[queueButtonClass[queueStatus]]}
+              variant='outlined'
+            >
+              {queueButtonText[queueStatus]}
+            </Button>
+          )}
       </>
     );
   }

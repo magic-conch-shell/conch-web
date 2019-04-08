@@ -12,6 +12,7 @@ import { ITag } from '../../interfaces/Tag';
 import ResultContainer from '../Result/ResultContainer';
 
 export interface IResultPageProps extends WithStyles<typeof styles> {
+  handleFinishLoading: () => void;
   questionId: string;
   tags: ITag[];
 }
@@ -31,11 +32,11 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
 
 class ResultPage extends React.Component<IResultPageProps, IResultPageState> {
   public render() {
-    const { classes, questionId, tags } = this.props;
+    const { classes, handleFinishLoading, questionId, tags } = this.props;
     return (
       <div className={classes.root}>
         <Grid container={true} justify={'center'}>
-          <ResultContainer tags={tags} questionId={questionId} />
+          <ResultContainer tags={tags} handleFinishLoading={handleFinishLoading} questionId={questionId} />
         </Grid>
       </div>
     );

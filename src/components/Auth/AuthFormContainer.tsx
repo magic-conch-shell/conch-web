@@ -133,7 +133,7 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
 class AuthFormContainer extends React.Component<
   IAuthFormContainerProps,
   IAuthFormContainerState
-> {
+  > {
   public state = {
     nickname: '',
     email: '',
@@ -198,6 +198,7 @@ class AuthFormContainer extends React.Component<
           email: userEmail,
           phone,
           is_mentor,
+          tags
         } = data;
         handleSignIn({
           id,
@@ -206,6 +207,7 @@ class AuthFormContainer extends React.Component<
           phone,
           avatar,
           is_mentor,
+          tags
         });
       })
       .catch((err) => {
@@ -241,6 +243,7 @@ class AuthFormContainer extends React.Component<
           email: userEmail,
           phone,
           is_mentor,
+          tags
         } = data;
         handleSignIn({
           id,
@@ -249,6 +252,7 @@ class AuthFormContainer extends React.Component<
           phone,
           avatar,
           is_mentor,
+          tags
         });
         signUp.state = SignUpState.SIGNED_UP;
         this.setState({ states });

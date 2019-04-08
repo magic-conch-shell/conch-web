@@ -1,10 +1,10 @@
 import * as React from 'react';
 
 import {
+  Button,
   Checkbox,
   FormControl,
   FormControlLabel,
-  FormHelperText,
   Grid,
   Input,
   InputLabel,
@@ -154,13 +154,9 @@ class Settings extends React.Component<ISettingsProps, ISettingsState> {
   public render() {
     const {
       nicknameText,
-      passwordText,
-      passwordConfirmText,
-      passwordErrorText,
       mentorDialogOpen,
     } = this.state;
     const { classes, editUser, tags, toggleTheme, user, userSettings } = this.props;
-    console.log(user);
     return (
       <>
         <MentorRegistration
@@ -260,7 +256,7 @@ class Settings extends React.Component<ISettingsProps, ISettingsState> {
               <button type="submit" style={{ display: 'none' }} />
             </form>
           </Grid>
-          <Grid item={true} xs={6}>
+          {/* <Grid item={true} xs={6}>
             <form
               style={{ display: 'flex', flexWrap: 'wrap' }}
               onSubmit={this._changePassword}
@@ -295,7 +291,12 @@ class Settings extends React.Component<ISettingsProps, ISettingsState> {
               </FormControl>
               <button type="submit" style={{ display: 'none' }} />
             </form>
-          </Grid>
+          </Grid> */}
+          {!user.is_mentor &&
+            <Grid item={true} xs={6}>
+              <Button onClick={this.openMentorDialog}>Become A Mentor</Button>
+            </Grid>
+          }
         </Grid>
       </>
     );

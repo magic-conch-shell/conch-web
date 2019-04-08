@@ -132,7 +132,7 @@ class MainContent extends React.Component<
       props: RouteComponentProps<any, StaticContext, any>
     ) => {
       const { questionId } = props.match.params;
-      return <ResultPage tags={tags} questionId={questionId} />;
+      return <ResultPage key={questionId} tags={tags} questionId={questionId} handleFinishLoading={this.handleFinishedLoading} />;
     };
 
     const mentorPage = () => {

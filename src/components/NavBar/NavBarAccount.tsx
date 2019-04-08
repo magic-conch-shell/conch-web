@@ -59,6 +59,9 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
   menuList: {
     marginTop: '60px',
   },
+  spacing: {
+    marginLeft: theme.spacing.unit * 2,
+  },
   userAccount: {
     display: 'flex',
     cursor: 'pointer',
@@ -92,24 +95,12 @@ class NavBarAccount extends React.Component<
         )}
       >
         {location.pathname === '/login' ||
-        location.pathname === '/register' ? null : !user ? (
-          <div className={classes.accountMenuButtonContainer}>
-            <Button
-              variant="text"
-              className={classes.accountMenuButton}
-              onClick={() => <Redirect to="/login" />}
-            >
-              Log In
-            </Button>
-            {/* <div className={classes.verticalDivider}>|</div> */}
-            {/* <Button variant="text" className={classes.accountMenuButton}>
-              Sign Up
-            </Button> */}
-          </div>
-        ) : (
+          location.pathname === '/register' ? null : user &&
           <>
-            <div className={classes.userAccount} onClick={handleClick}>
-              <Avatar className={classes.avatar} src={user.avatar} />
+            <div className={classes.spacing}>
+              <div className={classes.userAccount} onClick={handleClick}>
+                <Avatar className={classes.avatar} src={user.avatar} />
+              </div>
             </div>
             <Menu
               id="accountOptions-menu"

@@ -16,6 +16,7 @@ import classnames from 'classnames';
 import posed from 'react-pose';
 
 export interface IResultContainerProps extends WithStyles<typeof styles> {
+  handleFinishLoading: () => void;
   tags: ITag[];
   questionId: string;
 }
@@ -57,32 +58,27 @@ class ResultContainer extends React.Component<
   };
 
   public componentDidMount() {
-    const { questionId } = this.props;
-    const getQuestionData = (qid: string) => {
-      const INTERVAL = 10;
-      if (qid) {
-        axios({
-          method: 'get',
-          url: `/api/questions/${qid}`,
-          cancelToken: this.signal.token,
-        })
-          .then((result) => {
-            const { data } = result;
-            this.setState({ question: data, visible: true }, () => {
-              if (!data.solved) {
-                console.log(
-                  `Question is not solved yet... checking again in ${INTERVAL} seconds`
-                );
-                setTimeout(() => getQuestionData(qid), INTERVAL * 1000);
-              }
-            });
-          })
-          .catch((err) => {
-            console.log(err);
+    this.getQuestionData();
+  }
+
+  public getQuestionData = () => {
+    const { handleFinishLoading, questionId } = this.props;
+    if (questionId) {
+      axios({
+        method: 'get',
+        url: `/api/questions/${questionId}`,
+        cancelToken: this.signal.token,
+      })
+        .then((result) => {
+          const { data } = result;
+          this.setState({ question: data, visible: true }, () => {
+            handleFinishLoading();
           });
-      }
-    };
-    getQuestionData(questionId);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
   }
 
   public componentWillUnmount() {
@@ -93,7 +89,7 @@ class ResultContainer extends React.Component<
     const { question, visible } = this.state;
     const { classes, tags } = this.props;
     return (
-      <Grid item={true} xs={10} sm={6} md={4} lg={4} className={classes.root}>
+      <Grid item={true} xs={12} sm={6} md={4} lg={4} className={classes.root}>
         <OpacityContainer
           className={classnames(classes.container, classes.vCenter)}
           pose={visible ? 'visible' : 'hidden'}

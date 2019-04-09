@@ -316,14 +316,16 @@ class App extends Component<
                 toggleTheme={toggleTheme}
                 theme={themeType}
               >
-                {user && (user as IUser).is_mentor ? (
-                  <NavBarMentorStatus />
-                ) : (
-                    <>
-                      <NavBarListQuestions unread={questions.filter(q => q.is_dirty).length} />
-                      <NavBarMentorSignUp />
-                    </>
-                  )}
+                {user ? (
+                  (user as IUser).is_mentor ? (
+                    <NavBarMentorStatus />
+                  ) : (
+                      <>
+                        <NavBarListQuestions unread={questions.filter(q => q.is_dirty).length} />
+                        <NavBarMentorSignUp />
+                      </>
+                    )
+                ) : null}
                 <NavBarAccount
                   anchorEl={navBarAnchorEl}
                   handleClick={this.navBarHandleClick}

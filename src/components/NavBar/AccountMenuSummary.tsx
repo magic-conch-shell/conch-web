@@ -52,8 +52,8 @@ class AccountMenuSummary extends React.Component<
           <Typography className={classes.userNickName}>
             {user.nickname}
           </Typography>
-          <Typography className={classes.userEmail} variant="caption">
-            user status
+          <Typography className={classes.userStatus} variant="caption">
+            {user.is_mentor ? 'Mentor' : 'Client'}
           </Typography>
         </div>
       </div>

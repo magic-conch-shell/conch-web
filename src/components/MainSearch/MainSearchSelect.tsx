@@ -1,5 +1,6 @@
 import * as React from 'react';
 
+import Downshift, { ControllerStateAndHelpers } from 'downshift';
 import {
   Paper,
   StyleRulesCallback,
@@ -8,7 +9,6 @@ import {
   withStyles,
 } from '@material-ui/core';
 
-import Downshift from 'downshift';
 import classnames from 'classnames';
 import posed from 'react-pose';
 
@@ -85,11 +85,11 @@ class MainSearchSelect extends React.Component<
     selectValue: '',
   };
 
-  public handleSelectChange = (item: { id: number; name: string }) => {
+  public handleSelectChange = (item: { id: number; name: string }, stateAndHelpers: ControllerStateAndHelpers<any>) => {
     this.props.handleSelectTag(item.id);
     this.setState({
       selectValue: '',
-    });
+    }, () => stateAndHelpers.setState({ inputValue: '' }));
   };
 
   public handleSelectValueChange = (ev: any) => {
@@ -114,14 +114,21 @@ class MainSearchSelect extends React.Component<
             isOpen,
             selectedItem,
             clearSelection,
+            setState,
           }) => {
             const inputValueLower =
               inputValue && inputValue.toLocaleLowerCase();
+            const inputProps = getInputProps();
+            inputProps.onBlur = () => {
+              setState({
+                inputValue: ''
+              });
+            }
             return (
               <div className={classes.container}>
                 <input
                   className={classes.input}
-                  {...getInputProps()}
+                  {...inputProps}
                   placeholder="Add a category"
                 />
                 <div {...getMenuProps()}>

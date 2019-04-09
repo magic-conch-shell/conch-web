@@ -181,6 +181,11 @@ class App extends Component<
     this.setState({ questions });
   };
 
+  public addQuestion = (question: IQuestion) => {
+    const newQuestions = [...this.state.questions, question];
+    this.setState({ questions: newQuestions });
+  }
+
   public setAnswers = (answers: IAnswer[]) => {
     this.setState({ answers });
   }
@@ -216,7 +221,7 @@ class App extends Component<
   };
 
   public handlePubNubMsgAsClient = (msg: any) => {
-    console.log('[handlePubNubMsgAsClient]');
+    const { location } = this.props;
     const { message } = msg;
     const { status, question_id } = message;
     if (Object.keys(AnswerStatusTypes).includes(status)) {
@@ -240,6 +245,10 @@ class App extends Component<
         snackbarOpen: true,
         snackbarText: questionStatusText[status],
       });
+
+      if (location.pathname === `/results/${question_id}`) {
+        window.location.reload();
+      }
     }
   };
 
@@ -345,6 +354,7 @@ class App extends Component<
                 editUser={this.editUser}
                 questions={questions}
                 answers={answers}
+                addQuestion={this.addQuestion}
                 setQuestions={this.setQuestions}
                 setAnswers={this.setAnswers}
               />

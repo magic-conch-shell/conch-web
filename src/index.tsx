@@ -2,9 +2,8 @@ import './index.css';
 
 import * as serviceWorker from './serviceWorker';
 
-import { BrowserRouter, HashRouter } from 'react-router-dom';
-
 import AppContainer from './components/AppContainer/AppContainer';
+import { HashRouter } from 'react-router-dom';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import axios from 'axios';
@@ -16,8 +15,10 @@ import axios from 'axios';
 // }
 
 // axios.defaults.baseURL = process.env.REACT_APP_BACKEND_BASE_URL;
-axios.defaults.headers.common.Authorization = 'AUTH TOKEN';
-axios.defaults.headers.post['Content-Type'] = 'application/json';
+// axios.defaults.headers.common.Authorization = 'AUTH TOKEN';
+// axios.defaults.headers.post['Content-Type'] = 'application/json';
+
+axios.defaults.withCredentials = true;
 
 axios.interceptors.request.use(
   (req) => {
@@ -45,12 +46,6 @@ axios.interceptors.response.use(
   }
 );
 
-const prodApp = (
-  <BrowserRouter>
-    <AppContainer />
-  </BrowserRouter>
-);
-
 const devApp = (
   <HashRouter>
     <AppContainer />
@@ -58,7 +53,7 @@ const devApp = (
 );
 
 ReactDOM.render(
-  process.env.NODE_ENV === 'production' ? prodApp : devApp,
+  devApp,
   document.getElementById('root')
 );
 

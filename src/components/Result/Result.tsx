@@ -13,6 +13,8 @@ import {
 } from '@material-ui/core';
 import { IQuestion, ResultStatusTypes } from '../../interfaces/Question';
 
+import Check from '@material-ui/icons/Check';
+import Close from '@material-ui/icons/Close';
 import { IAnswer } from '../../interfaces/Answer';
 import { ITag } from '../../interfaces/Tag';
 import { IUser } from '../../interfaces/User';
@@ -20,12 +22,14 @@ import InputContainer from '../Input/InputContainer';
 import Send from '@material-ui/icons/Send';
 import TextareaAutosize from 'react-textarea-autosize';
 import axios from 'axios';
+import { lighten } from '@material-ui/core/styles/colorManipulator';
 
 export interface IResultProps extends WithStyles<typeof styles> {
   answers: IAnswer[];
   user: IUser;
   result: IQuestion;
   tags: ITag[];
+  updateQuestionAnswer: (answer: IAnswer) => void;
 }
 
 export interface IResultState {
@@ -42,6 +46,13 @@ const resultStatusText: { [key in ResultStatusTypes]: string } = {
 };
 
 const styles: StyleRulesCallback<any> = (theme: Theme) => ({
+  answerActionsContainer: {
+    display: 'flex',
+    width: '100%'
+  },
+  answerActions: {
+    marginLeft: 'auto'
+  },
   chip: {
     backgroundColor: 'rgba(0, 0, 0, 0)',
     borderColor: theme.palette.primary.main,
@@ -79,6 +90,18 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
       color: theme.palette.text.primary,
     }
   },
+  rejectAction: {
+    color: '#dc3545',
+    '&:hover': {
+      backgroundColor: lighten('#dc3545', 0.75)
+    }
+  },
+  answerAccepted: {
+    color: 'green'
+  },
+  answerRejected: {
+    color: '#dc3545'
+  }
 });
 
 class Result extends React.Component<IResultProps, IResultState> {
@@ -119,6 +142,38 @@ class Result extends React.Component<IResultProps, IResultState> {
         .then((res) => console.log(res))
         .catch((err) => console.log(err));
     }
+  }
+
+  public _handleAcceptAnswer = (aid: number) => {
+    const { updateQuestionAnswer } = this.props;
+    axios({
+      method: 'put',
+      url: `/api/answers/${aid}`,
+      params: {
+        selected: true
+      }
+    })
+      .then((result) => {
+        const { data } = result;
+        updateQuestionAnswer(data);
+      })
+      .catch((err) => console.log(err));
+  }
+
+  public _handleRejectAnswer = (aid: number) => {
+    const { updateQuestionAnswer } = this.props;
+    axios({
+      method: 'put',
+      url: `/api/answers/${aid}`,
+      params: {
+        selected: false
+      }
+    })
+      .then((result) => {
+        const { data } = result;
+        updateQuestionAnswer(data);
+      })
+      .catch((err) => console.log(err));
   }
 
   public submitIsDisabled = () => {
@@ -261,20 +316,48 @@ class Result extends React.Component<IResultProps, IResultState> {
                   {new Date(result.created_at).toLocaleTimeString()}
                 </Typography>
               </div>
-              {answers.length > 0 &&
+              {answers.length > 0 && !user.is_mentor &&
                 <div className={classes.resultContent}>
                   <Typography variant='caption'>
-                    <strong>Previous Answers:</strong>
+                    <strong>Answers:</strong>
                   </Typography>
-                  {answers.map((ans, index) => (
-                    <InputContainer key={index}>
-                      <TextareaAutosize
-                        readOnly={true}
-                        value={ans.content}
-                        className={classes.input}
-                      />
-                    </InputContainer>
-                  ))}
+                  {answers.map((ans, index) => {
+                    return (
+                      <div key={index} className={classes.answer}>
+                        <InputContainer>
+                          <TextareaAutosize
+                            readOnly={true}
+                            value={ans.content}
+                            className={classes.input}
+                          />
+                        </InputContainer>
+                        <div className={classes.answerActionsContainer}>
+                          {index === 0 ? (
+                            ans.selected === false ? (
+                              <div className={classes.answerActions}>
+                                <Tooltip title='Accept Answer'>
+                                  <IconButton color='primary' onClick={() => this._handleAcceptAnswer(ans.id)}>
+                                    <Check />
+                                  </IconButton>
+                                </Tooltip>
+                                <Tooltip title='Reject Answer' onClick={() => this._handleRejectAnswer(ans.id)}>
+                                  <IconButton className={classes.rejectAction}>
+                                    <Close />
+                                  </IconButton>
+                                </Tooltip>
+                              </div>
+                            ) : (
+                                <Typography variant='caption' className={classes.answerAccepted}><strong>Status: Accepted</strong></Typography>
+                              )
+                          ) : (
+                              <Typography variant='caption' className={classes.answerRejected}><strong>Status: Rejected</strong></Typography>
+                            )}
+
+                        </div>
+                        {index !== answers.length - 1 && <hr />}
+                      </div>
+                    )
+                  })}
                 </div>
               }
             </>

@@ -31,6 +31,7 @@ import axios from 'axios';
 import classnames from 'classnames';
 
 export interface IMainContentProps {
+  addQuestion: (question: IQuestion) => void;
   editUser: (user: IUser) => void;
   handleSignIn: (user: IUser) => void;
   setTimeZone: (timeZone: string) => void;
@@ -117,12 +118,14 @@ class MainContent extends React.Component<
       answers,
       setAnswers,
       questions,
-      setQuestions
+      setQuestions,
+      addQuestion
     } = this.props;
     const { loading, tags } = this.state;
     const homePage = () => {
       return (
         <MainPage
+          addQuestion={addQuestion}
           handleFinishLoading={this.handleFinishedLoading}
           tags={tags}
         />
@@ -141,7 +144,7 @@ class MainContent extends React.Component<
     ) => {
       const { questionId } = props.match.params;
       return user ? (
-        <ResultPage key={questionId} tags={tags} questionId={questionId} user={user} handleFinishLoading={this.handleFinishedLoading} />
+        <ResultPage key={questionId} tags={tags} setQuestions={setQuestions} questions={questions} questionId={questionId} user={user} handleFinishLoading={this.handleFinishedLoading} />
       ) : (
           <Redirect to='/login' />
         );
@@ -206,6 +209,9 @@ class MainContent extends React.Component<
                 path="/results/:questionId"
                 render={(props) => resultPage(props)}
               />
+              <Route key='empty' path="/empty" render={(props) => {
+                return <Redirect to={`${props.location.state.previous}`} />
+              }} />
             </Switch>
           </div>
         </>

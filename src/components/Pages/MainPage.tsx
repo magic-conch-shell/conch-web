@@ -8,10 +8,12 @@ import {
   withStyles,
 } from '@material-ui/core';
 
+import { IQuestion } from '../../interfaces/Question';
 import { ITag } from '../../interfaces/Tag';
 import MainSearchContainer from '../MainSearch/MainSearchContainer';
 
 export interface IMainPageProps {
+  addQuestion: (question: IQuestion) => void;
   handleFinishLoading: () => void;
   tags: ITag[];
 }
@@ -31,16 +33,16 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
 class MainPage extends React.Component<
   WithStyles<any> & IMainPageProps,
   IMainPageState
-> {
+  > {
   public componentDidMount() {
     this.props.handleFinishLoading();
   }
   public render() {
-    const { classes, tags } = this.props;
+    const { classes, addQuestion, tags } = this.props;
     return (
       <div className={classes.root}>
         <Grid container={true} justify={'center'}>
-          <MainSearchContainer tags={tags} />
+          <MainSearchContainer addQuestion={addQuestion} tags={tags} />
         </Grid>
       </div>
     );

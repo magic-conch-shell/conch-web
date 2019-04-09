@@ -8,10 +8,12 @@ import {
   withStyles,
 } from '@material-ui/core';
 
+import { IQuestion } from '../../interfaces/Question';
 import { ITag } from '../../interfaces/Tag';
 import MainSearch from './MainSearch';
 
 export interface IMainSearchContainerProps {
+  addQuestion: (question: IQuestion) => void;
   tags: ITag[];
 }
 
@@ -33,10 +35,10 @@ class MainSearchContainer extends React.Component<
   IMainSearchContainerState
   > {
   public render() {
-    const { classes, tags } = this.props;
+    const { classes, tags, addQuestion } = this.props;
     return (
       <Grid item={true} xs={10} sm={8} md={6} lg={4} className={classes.root}>
-        <MainSearch tags={tags} />
+        <MainSearch tags={tags} addQuestion={addQuestion} />
       </Grid>
     );
   }

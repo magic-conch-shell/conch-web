@@ -8,6 +8,7 @@ import {
   withStyles,
 } from '@material-ui/core';
 import { IQuestion, ResultStatusTypes } from '../../interfaces/Question';
+import { getAnswersByQuestionId, getQuestionByQuestionId } from '../../api';
 
 import { IAnswer } from '../../interfaces/Answer';
 import { ITag } from '../../interfaces/Tag';
@@ -19,6 +20,8 @@ import posed from 'react-pose';
 
 export interface IResultContainerProps extends WithStyles<typeof styles> {
   handleFinishLoading: () => void;
+  setQuestions: (questions: IQuestion[]) => void;
+  questions: IQuestion[];
   user: IUser;
   tags: ITag[];
   questionId: string;
@@ -59,7 +62,7 @@ class ResultContainer extends React.Component<
   public state = {
     answers: [] as IAnswer[],
     visible: false,
-    question: {} as IQuestion,
+    question: {} as IQuestion
   };
 
   public componentDidMount() {
@@ -67,36 +70,39 @@ class ResultContainer extends React.Component<
   }
 
   public getQuestionData = () => {
-    const { handleFinishLoading, questionId } = this.props;
+    const { handleFinishLoading, questions, setQuestions, questionId } = this.props;
     if (questionId) {
-      axios({
-        method: 'get',
-        url: `/api/questions/${questionId}`,
-        cancelToken: this.signal.token,
-      })
-        .then((result) => {
-          const { data } = result;
-          this.setState({ question: data }, () => {
-            const qstatus = this.state.question.question_status.status;
-            if (qstatus === ResultStatusTypes.ANSWERED || qstatus === ResultStatusTypes.RESOLVED) {
-              axios({
-                method: 'get',
-                url: `/api/questions/${questionId}/answers`
-              })
-                .then((res) => {
-                  const { data: answerData } = res;
-                  this.setState({ answers: answerData });
-                })
-                .catch((e) => console.log(e));
-            }
+      const qid = parseInt(questionId, 10);
+      getQuestionByQuestionId(qid, (question) => {
+        const newQuestions = [...questions];
+        const qIndex = newQuestions.findIndex(q => q.id === qid);
+        if (qIndex !== -1) {
+          newQuestions[qIndex] = question;
+          setQuestions(newQuestions);
+        }
+        this.setState({ question }, () => {
+          const qstatus = question.question_status.status;
+          if (qstatus === ResultStatusTypes.ANSWERED || qstatus === ResultStatusTypes.RESOLVED) {
+            getAnswersByQuestionId(qid, (answers) => {
+              this.setState({ answers, visible: true });
+              handleFinishLoading();
+            });
+          } else {
             handleFinishLoading();
-          });
-        })
-        .catch((err) => {
-          console.log(err);
-        })
-        .finally(() => this.setState({ visible: true }));
+            this.setState({ visible: true });
+          }
+        });
+      }, this.signal);
     }
+  };
+
+  public updateQuestionAnswer = (answer: IAnswer) => {
+    const newAnswers = [...this.state.answers];
+    const aIndex = newAnswers.findIndex(a => a.id === answer.id);
+    if (aIndex !== -1) {
+      newAnswers[aIndex] = answer;
+    }
+    this.setState({ answers: newAnswers });
   }
 
   public componentWillUnmount() {
@@ -104,16 +110,20 @@ class ResultContainer extends React.Component<
   }
 
   public render() {
-    const { answers, question, visible } = this.state;
-    const { classes, user, tags } = this.props;
+    const { answers, visible, question } = this.state;
+    const { classes, questionId, user, tags } = this.props;
     return (
       <Grid item={true} xs={12} sm={6} md={4} lg={4} className={classes.root}>
-        <OpacityContainer
-          className={classnames(classes.container, classes.vCenter)}
-          pose={visible ? 'visible' : 'hidden'}
-        >
-          {visible && <Result answers={answers} result={question} tags={tags} user={user} />}
-        </OpacityContainer>
+        {questionId ? (
+          <OpacityContainer
+            className={classnames(classes.container, classes.vCenter)}
+            pose={visible ? 'visible' : 'hidden'}
+          >
+            {visible && question && <Result answers={answers} result={question} tags={tags} user={user} updateQuestionAnswer={this.updateQuestionAnswer} />}
+          </OpacityContainer>
+        ) : (
+            <div>no questionId provided</div>
+          )}
       </Grid>
     );
   }

@@ -8,6 +8,7 @@ import {
   withStyles,
 } from '@material-ui/core';
 
+import { IQuestion } from '../../interfaces/Question';
 import { ITag } from '../../interfaces/Tag';
 import InputContainer from '../Input/InputContainer';
 import MainSearchInput from './MainSearchInput';
@@ -18,6 +19,7 @@ import axios from 'axios';
 import posed from 'react-pose';
 
 export interface IMainSearchProps extends RouteComponentProps, WithStyles {
+  addQuestion: (question: IQuestion) => void;
   tags: ITag[];
 }
 
@@ -121,6 +123,7 @@ class MainSearch extends React.Component<IMainSearchProps, IMainSearchState> {
       ev.preventDefault();
     }
     const { content, title, selectedTags } = this.state;
+    const { addQuestion } = this.props;
     if (content.length > 0 && selectedTags.length > 0) {
       axios({
         method: 'post',
@@ -133,6 +136,7 @@ class MainSearch extends React.Component<IMainSearchProps, IMainSearchState> {
       })
         .then((result) => {
           const { data } = result;
+          addQuestion(data);
           const { id } = data;
           this.setSubmissionStateToSubmitted(id);
         })

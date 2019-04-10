@@ -37,21 +37,21 @@ export interface IResultState {
 }
 
 const resultStatusText: { [key in ResultStatusTypes]: string } = {
-  'NOT_SUBMITTED': 'Not submitted',
-  'SUBMITTED': 'Connecting with a Mentor...',
-  'ACCEPTED': 'A Mentor is currently answering your question',
-  'ANSWERED':
-    "Your question has been answered. If you are not satisfied with your answer, click the red X",
-  'RESOLVED': 'Your question has been answered.',
+  NOT_SUBMITTED: 'Not submitted',
+  SUBMITTED: 'Connecting with a Mentor...',
+  ACCEPTED: 'A Mentor is currently answering your question',
+  ANSWERED:
+    'Your question has been answered. If you are not satisfied with your answer, click the red X',
+  RESOLVED: 'Your question has been answered.',
 };
 
 const styles: StyleRulesCallback<any> = (theme: Theme) => ({
   answerActionsContainer: {
     display: 'flex',
-    width: '100%'
+    width: '100%',
   },
   answerActions: {
-    marginLeft: 'auto'
+    marginLeft: 'auto',
   },
   chip: {
     backgroundColor: 'rgba(0, 0, 0, 0)',
@@ -87,27 +87,27 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
     '&::placeholder': {
       opacity: 0.65,
       color: theme.palette.text.primary,
-    }
+    },
   },
   rejectAction: {
     color: '#dc3545',
     '&:hover': {
-      backgroundColor: lighten('#dc3545', 0.75)
-    }
+      backgroundColor: lighten('#dc3545', 0.75),
+    },
   },
   answerAccepted: {
     color: 'green',
-    marginLeft: 'auto'
+    marginLeft: 'auto',
   },
   answerRejected: {
     color: '#dc3545',
-    marginLeft: 'auto'
-  }
+    marginLeft: 'auto',
+  },
 });
 
 class Result extends React.Component<IResultProps, IResultState> {
   public state = {
-    answerText: ''
+    answerText: '',
   };
 
   public getTagById = (id: number) => {
@@ -137,13 +137,13 @@ class Result extends React.Component<IResultProps, IResultState> {
         method: 'post',
         url: `/api/questions/${result.id}/answers`,
         params: {
-          content: answerText
-        }
+          content: answerText,
+        },
       })
         .then((res) => console.log(res))
         .catch((err) => console.log(err));
     }
-  }
+  };
 
   public _handleAcceptAnswer = (aid: number) => {
     const { updateQuestionAnswer } = this.props;
@@ -151,15 +151,15 @@ class Result extends React.Component<IResultProps, IResultState> {
       method: 'put',
       url: `/api/answers/${aid}`,
       params: {
-        selected: true
-      }
+        selected: true,
+      },
     })
       .then((result) => {
         const { data } = result;
         updateQuestionAnswer(data);
       })
       .catch((err) => console.log(err));
-  }
+  };
 
   public _handleRejectAnswer = (aid: number) => {
     const { updateQuestionAnswer } = this.props;
@@ -167,32 +167,36 @@ class Result extends React.Component<IResultProps, IResultState> {
       method: 'put',
       url: `/api/answers/${aid}`,
       params: {
-        selected: false
-      }
+        selected: false,
+      },
     })
       .then((result) => {
         const { data } = result;
         updateQuestionAnswer(data);
       })
       .catch((err) => console.log(err));
-  }
+  };
 
   public submitIsDisabled = () => {
     const { answerText } = this.state;
     const { result } = this.props;
 
-    if (answerText.length === 0) { return true; }
-    if (result.question_status.status !== ResultStatusTypes.ACCEPTED) { return true; }
+    if (answerText.length === 0) {
+      return true;
+    }
+    if (result.question_status.status !== ResultStatusTypes.ACCEPTED) {
+      return true;
+    }
 
     return false;
-  }
+  };
 
   public render() {
     const { answerText } = this.state;
     const { answers, classes, user, result } = this.props;
     return (
       <Paper className={classes.root} elevation={4}>
-        {(user.is_mentor && result.question_status.mentor_id === user.id) ? (
+        {user.is_mentor && result.question_status.mentor_id === user.id ? (
           <>
             <div className={classes.resultContent}>
               <Typography variant="caption">
@@ -229,145 +233,191 @@ class Result extends React.Component<IResultProps, IResultState> {
                 {new Date(result.created_at).toLocaleTimeString()}
               </Typography>
             </div>
-            {answers.length > 0 &&
+            {answers.length > 0 && (
               <div className={classes.resultContent}>
-                <Typography variant='caption'>
+                <Typography variant="caption">
                   <strong>Previous Answers:</strong>
                 </Typography>
-                {answers.map((ans, index) => (
-                  <InputContainer key={index}>
-                    <TextareaAutosize
-                      readOnly={true}
-                      value={ans.content}
-                      className={classes.input}
-                    />
-                  </InputContainer>
-                ))}
+                {answers.map((ans, index) => {
+                  return (
+                    <>
+                      <InputContainer key={index}>
+                        <TextareaAutosize
+                          readOnly={true}
+                          value={ans.content}
+                          className={classes.input}
+                        />
+                      </InputContainer>
+                      <div className={classes.answerActionsContainer}>
+                        {ans.selected ? (
+                          <Typography
+                            variant="caption"
+                            className={classes.answerAccepted}
+                          >
+                            <strong>Status: Accepted</strong>
+                          </Typography>
+                        ) : (
+                          <Typography
+                            variant="caption"
+                            className={classes.answerRejected}
+                          >
+                            <strong>Status: Rejected</strong>
+                          </Typography>
+                        )}
+                      </div>
+                    </>
+                  );
+                })}
               </div>
-            }
-            <div className={classes.resultContent}>
-              <Typography variant='caption'>
-                <strong>Your Answer:</strong>
-              </Typography>
-              <InputContainer>
-                <TextareaAutosize
-                  className={classes.input}
-                  name='answer'
-                  placeholder='Enter Answer'
-                  autoFocus={true}
-                  required={true}
-                  value={answerText}
-                  onChange={this._handleAnswerChange}
-                />
-                <Tooltip title='Submit Answer' placement='right'>
-                  <IconButton
-                    className={classes.inputIcon}
-                    onClick={this._handleSubmit}
-                    disabled={this.submitIsDisabled()}
-                    tabIndex={-1}
-                  >
-                    <Send />
-                  </IconButton>
-                </Tooltip>
-              </InputContainer>
-            </div>
-          </>
-        ) : (
-            <>
-              <div className={classes.resultHeader}>
-                <Typography variant="caption">
-                  Status: {resultStatusText[result.question_status.status]}
-                </Typography>
-              </div>
+            )}
+            {!result.solved && (
               <div className={classes.resultContent}>
                 <Typography variant="caption">
-                  <strong>Your Question:</strong>
+                  <strong>Your Answer:</strong>
                 </Typography>
-                {result.title && (
-                  <InputContainer>
-                    <textarea
-                      readOnly={true}
-                      value={result.title}
-                      className={classes.input}
-                    />
-                  </InputContainer>
-                )}
                 <InputContainer>
                   <TextareaAutosize
+                    className={classes.input}
+                    name="answer"
+                    placeholder="Enter Answer"
+                    autoFocus={true}
+                    required={true}
+                    value={answerText}
+                    onChange={this._handleAnswerChange}
+                  />
+                  <Tooltip title="Submit Answer" placement="right">
+                    <IconButton
+                      className={classes.inputIcon}
+                      onClick={this._handleSubmit}
+                      disabled={this.submitIsDisabled()}
+                      tabIndex={-1}
+                    >
+                      <Send />
+                    </IconButton>
+                  </Tooltip>
+                </InputContainer>
+              </div>
+            )}
+          </>
+        ) : (
+          <>
+            <div className={classes.resultHeader}>
+              <Typography variant="caption">
+                Status: {resultStatusText[result.question_status.status]}
+              </Typography>
+            </div>
+            <div className={classes.resultContent}>
+              <Typography variant="caption">
+                <strong>Your Question:</strong>
+              </Typography>
+              {result.title && (
+                <InputContainer>
+                  <textarea
                     readOnly={true}
-                    value={result.content}
+                    value={result.title}
                     className={classes.input}
                   />
                 </InputContainer>
-                {result.tags.map((tag) => {
-                  return (
-                    <Chip
-                      key={tag}
-                      className={classes.chip}
-                      label={this.getTagById(tag).name}
-                    />
-                  );
-                })}
-                <Typography align="right" variant="caption">
-                  <strong>Submitted:</strong>{' '}
-                  {new Date(result.created_at).toLocaleDateString()}{' '}
-                  {new Date(result.created_at).toLocaleTimeString()}
+              )}
+              <InputContainer>
+                <TextareaAutosize
+                  readOnly={true}
+                  value={result.content}
+                  className={classes.input}
+                />
+              </InputContainer>
+              {result.tags.map((tag) => {
+                return (
+                  <Chip
+                    key={tag}
+                    className={classes.chip}
+                    label={this.getTagById(tag).name}
+                  />
+                );
+              })}
+              <Typography align="right" variant="caption">
+                <strong>Submitted:</strong>{' '}
+                {new Date(result.created_at).toLocaleDateString()}{' '}
+                {new Date(result.created_at).toLocaleTimeString()}
+              </Typography>
+            </div>
+            {answers.length > 0 && (
+              <div className={classes.resultContent}>
+                <Typography variant="caption">
+                  <strong>Answers:</strong>
                 </Typography>
-              </div>
-              {answers.length > 0 && !user.is_mentor &&
-                <div className={classes.resultContent}>
-                  <Typography variant='caption'>
-                    <strong>Answers:</strong>
-                  </Typography>
-                  {answers
-                    .sort((a, b) => {
-                      const aDate = new Date(a.created_at);
-                      const bDate = new Date(b.created_at);
-                      return aDate > bDate ? -1 : 1;
-                    })
-                    .map((ans, index) => {
-                      return (
-                        <div key={index} className={classes.answer}>
-                          <InputContainer>
-                            <TextareaAutosize
-                              readOnly={true}
-                              value={ans.content}
-                              className={classes.input}
-                            />
-                          </InputContainer>
-                          <div className={classes.answerActionsContainer}>
-                            {index === 0 ? (
-                              ans.selected === false ? (
-                                <div className={classes.answerActions}>
-                                  <Tooltip title='Accept Answer'>
-                                    <IconButton color='primary' onClick={() => this._handleAcceptAnswer(ans.id)}>
-                                      <Check />
-                                    </IconButton>
-                                  </Tooltip>
-                                  <Tooltip title='Reject Answer' onClick={() => this._handleRejectAnswer(ans.id)}>
-                                    <IconButton className={classes.rejectAction}>
-                                      <Close />
-                                    </IconButton>
-                                  </Tooltip>
-                                </div>
-                              ) : (
-                                  <Typography variant='caption' className={classes.answerAccepted}><strong>Status: Accepted</strong></Typography>
-                                )
+                {answers
+                  .sort((a, b) => {
+                    const aDate = new Date(a.created_at);
+                    const bDate = new Date(b.created_at);
+                    return aDate > bDate ? -1 : 1;
+                  })
+                  .map((ans, index) => {
+                    return (
+                      <div key={index} className={classes.answer}>
+                        <InputContainer>
+                          <TextareaAutosize
+                            readOnly={true}
+                            value={ans.content}
+                            className={classes.input}
+                          />
+                        </InputContainer>
+                        <div className={classes.answerActionsContainer}>
+                          {index === 0 ? (
+                            ans.selected === false ? (
+                              <div className={classes.answerActions}>
+                                <Tooltip title="Accept Answer">
+                                  <IconButton
+                                    color="primary"
+                                    onClick={() =>
+                                      this._handleAcceptAnswer(ans.id)
+                                    }
+                                  >
+                                    <Check />
+                                  </IconButton>
+                                </Tooltip>
+                                <Tooltip
+                                  title="Reject Answer"
+                                  onClick={() =>
+                                    this._handleRejectAnswer(ans.id)
+                                  }
+                                >
+                                  <IconButton className={classes.rejectAction}>
+                                    <Close />
+                                  </IconButton>
+                                </Tooltip>
+                              </div>
                             ) : (
-                                <Typography variant='caption' className={classes.answerRejected}><strong>Status: Rejected</strong></Typography>
-                              )}
-
-                          </div>
-                          {index !== answers.length - 1 && <hr style={{ marginTop: '5px', marginBottom: '5px' }} />}
+                              <Typography
+                                variant="caption"
+                                className={classes.answerAccepted}
+                              >
+                                <strong>Status: Accepted</strong>
+                              </Typography>
+                            )
+                          ) : (
+                            <Typography
+                              variant="caption"
+                              className={classes.answerRejected}
+                            >
+                              <strong>Status: Rejected</strong>
+                            </Typography>
+                          )}
                         </div>
-                      )
-                    })}
-                </div>
-              }
-            </>
-          )}
+                        {index !== answers.length - 1 && (
+                          <hr
+                            style={{ marginTop: '5px', marginBottom: '5px' }}
+                          />
+                        )}
+                      </div>
+                    );
+                  })}
+              </div>
+            )}
+          </>
+        )}
       </Paper>
-    )
+    );
   }
 }
 

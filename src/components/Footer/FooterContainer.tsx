@@ -21,7 +21,7 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
   root: {
     position: 'fixed',
     bottom: 0,
-    width: '100%',
+    right: 0,
   },
 });
 

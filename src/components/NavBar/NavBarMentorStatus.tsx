@@ -32,7 +32,7 @@ const queueButtonClass: { [key in MentorQueueStatus]: string } = {
 };
 
 export interface INavBarMentorStatusProps extends WithStyles<typeof styles> {
-  pnToggle: boolean;
+  placeholder?: string;
 }
 
 export interface INavBarMentorStatusState {
@@ -59,7 +59,7 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
   },
   queueBusy: {
     color: 'red',
-    borderColor: 'red'
+    borderColor: 'red',
   },
   pendingIcon: {
     animationName: '$spin',
@@ -68,22 +68,22 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
     display: 'flex',
     flexWrap: 'wrap',
     textAlign: 'right',
-    marginRight: theme.spacing.unit * 2
+    marginRight: theme.spacing.unit * 2,
   },
   queueTimer: {
     fontSize: '1em',
-    width: '100%'
+    width: '100%',
   },
   queueLabel: {
     fontSize: '0.75em',
-    width: '100%'
-  }
+    width: '100%',
+  },
 });
 
 class NavBarMentorStatus extends React.Component<
   RouteComponentProps<any> & INavBarMentorStatusProps,
   INavBarMentorStatusState
-  > {
+> {
   public state = {
     interval: null,
     pending: false,
@@ -93,21 +93,29 @@ class NavBarMentorStatus extends React.Component<
   };
 
   public componentDidMount() {
-    axios({
-      method: 'get',
-      url: '/api/join_queue'
-    })
-      .then((result) => {
-        const { data } = result;
-        const { question_id, status } = data;
-        if (status === MentorQueueStatus.BUSY) {
-          this.setState({ questionId: question_id }, () => this.setStatus(status));
-        } else {
-          this.setStatus(status);
-        }
+    const queryStatus = () => {
+      axios({
+        method: 'get',
+        url: '/api/join_queue',
       })
-      .catch((err) => console.log(err));
-  };
+        .then((result) => {
+          const { data } = result;
+          const { question_id, status } = data;
+          if (status !== this.state.queueStatus) {
+            if (status === MentorQueueStatus.BUSY) {
+              this.setState({ questionId: question_id }, () =>
+                this.setStatus(status)
+              );
+            } else {
+              this.setStatus(status);
+            }
+          }
+        })
+        .catch((err) => console.log(err));
+    };
+    queryStatus();
+    setInterval(() => queryStatus(), 1500);
+  }
 
   public setStatus = (status: MentorQueueStatus) => {
     if (status === 'IN_QUEUE') {
@@ -117,7 +125,7 @@ class NavBarMentorStatus extends React.Component<
     } else {
       this.setToBusy();
     }
-  }
+  };
 
   public startTimer = () => {
     const interval = setInterval(
@@ -172,7 +180,9 @@ class NavBarMentorStatus extends React.Component<
             const { data } = result;
             const { question_id, status } = data;
             if (status === MentorQueueStatus.BUSY) {
-              this.setState({ questionId: question_id }, () => this.setStatus(status));
+              this.setState({ questionId: question_id }, () =>
+                this.setStatus(status)
+              );
             } else {
               this.setStatus(status);
             }
@@ -188,25 +198,29 @@ class NavBarMentorStatus extends React.Component<
     const { classes } = this.props;
     return (
       <>
-        {queueStatus !== MentorQueueStatus.NOT_IN_QUEUE &&
+        {queueStatus !== MentorQueueStatus.NOT_IN_QUEUE && (
           <div className={classes.timeInQueue}>
-            <Typography className={classes.queueLabel} variant="caption">Time in Queue:</Typography>
-            <Typography className={classes.queueTimer}>{timeInQueue}</Typography>
+            <Typography className={classes.queueLabel} variant="caption">
+              Time in Queue:
+            </Typography>
+            <Typography className={classes.queueTimer}>
+              {timeInQueue}
+            </Typography>
           </div>
-        }
+        )}
         {pending ? (
           <Button className={classes.pendingBtn} disabled={true}>
             <Settings className={classes.pendingIcon} /> Working
           </Button>
         ) : (
-            <Button
-              onClick={this.toggleQueueStatus}
-              className={classes[queueButtonClass[queueStatus]]}
-              variant='outlined'
-            >
-              {queueButtonText[queueStatus]}
-            </Button>
-          )}
+          <Button
+            onClick={this.toggleQueueStatus}
+            className={classes[queueButtonClass[queueStatus]]}
+            variant="outlined"
+          >
+            {queueButtonText[queueStatus]}
+          </Button>
+        )}
       </>
     );
   }

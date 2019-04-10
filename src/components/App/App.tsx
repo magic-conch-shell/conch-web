@@ -36,7 +36,6 @@ export interface IAppState {
   loading: boolean;
   navBarAnchorEl: HTMLElement | undefined;
   pn_messages: { [index: string]: IPNMessage[] };
-  pn_toggle: boolean;
   questions: IQuestion[];
   snackbarQuestionId: number | undefined;
   snackbarOpen: boolean;
@@ -70,7 +69,7 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
 class App extends Component<
   RouteComponentProps<any> & WithStyles<any> & IAppProps,
   IAppState
-  > {
+> {
   public pubNub: PubNubReact;
   constructor(props: RouteComponentProps<any> & WithStyles<any> & IAppProps) {
     super(props);
@@ -78,17 +77,16 @@ class App extends Component<
       answers: [] as IAnswer[],
       pn_messages: {},
       loading: true,
-      pn_toggle: false,
       snackbarQuestionId: undefined,
       snackbarOpen: false,
       snackbarText: 'placeholder text',
       questions: [] as IQuestion[],
       navBarAnchorEl: undefined,
       user: null,
-    }
+    };
     this.pubNub = new PubNubReact({
       publishKey: process.env.REACT_APP_PN_PUBLISH_KEY,
-      subscribeKey: process.env.REACT_APP_PN_SUBSCRIBE_KEY
+      subscribeKey: process.env.REACT_APP_PN_SUBSCRIBE_KEY,
     });
 
     this.pubNub.init(this);
@@ -102,7 +100,15 @@ class App extends Component<
     })
       .then((result) => {
         const { data } = result;
-        const { id, avatar_url, nickname, email, phone, is_mentor, tags } = data;
+        const {
+          id,
+          avatar_url,
+          nickname,
+          email,
+          phone,
+          is_mentor,
+          tags,
+        } = data;
         this.handleSignIn({
           id,
           nickname,
@@ -110,12 +116,12 @@ class App extends Component<
           phone,
           avatar_url,
           is_mentor,
-          tags
+          tags,
         });
       })
       .catch((err) => console.log(err))
       .finally(() => this.finishLoading());
-  };
+  }
 
   public componentWillUnmount() {
     const { user } = this.state;
@@ -130,10 +136,10 @@ class App extends Component<
       const clientChannel = `${baseChannel}-client`;
       channels.push(clientChannel);
       this.pubNub.unsubscribe({
-        channels
+        channels,
       });
     }
-  };
+  }
 
   public finishLoading = () => {
     this.setState({ loading: false });
@@ -156,15 +162,14 @@ class App extends Component<
     this.setState({ user }, () => {
       this.pubNubSub();
       this.getUserData(() => {
-        if (location.pathname === '/login' || location.pathname === '/register') {
+        if (
+          location.pathname === '/login' ||
+          location.pathname === '/register'
+        ) {
           history.push('/');
         }
       });
     });
-  };
-
-  public togglePn = () => {
-    this.setState(prevState => ({ pn_toggle: !prevState.pn_toggle }));
   };
 
   public getUserData = (callback: () => void) => {
@@ -191,11 +196,11 @@ class App extends Component<
   public addQuestion = (question: IQuestion) => {
     const newQuestions = [...this.state.questions, question];
     this.setState({ questions: newQuestions });
-  }
+  };
 
   public setAnswers = (answers: IAnswer[]) => {
     this.setState({ answers });
-  }
+  };
 
   public pubNubSub = () => {
     const { user } = this.state;
@@ -210,7 +215,7 @@ class App extends Component<
       const clientChannel = `${baseChannel}-client`;
       channels.push(clientChannel);
       this.pubNub.subscribe({
-        channels
+        channels,
       });
 
       // @ts-ignore
@@ -228,23 +233,27 @@ class App extends Component<
   };
 
   public handlePubNubMsgAsClient = (msg: any) => {
+    console.log('[handlePubNubMsgAsClient]');
     const { location } = this.props;
     const { message } = msg;
     const { status, question_id } = message;
     if (Object.keys(AnswerStatusTypes).includes(status)) {
-      const text = 'If you are getting this message, please contact support. Client channels should not receive updates about answer statuses.';
+      const text =
+        'If you are getting this message, please contact support. Client channels should not receive updates about answer statuses.';
       this.setState({
         snackbarQuestionId: question_id,
         snackbarOpen: true,
-        snackbarText: text
+        snackbarText: text,
       });
     } else {
       const questionStatusText: { [key in ResultStatusTypes]: string } = {
-        'NOT_SUBMITTED': 'This should never show up!',
-        'SUBMITTED': 'Your question has been submitted. Should never show up!',
-        'ACCEPTED': 'Your question has been accepted by a mentor. Awaiting answer...',
-        'ANSWERED': 'Your question has been answered by a mentor. Please accept or reject the answer.',
-        'RESOLVED': 'Your question has been resolved successfully.'
+        NOT_SUBMITTED: 'This should never show up!',
+        SUBMITTED: 'Your question has been submitted. Should never show up!',
+        ACCEPTED:
+          'Your question has been accepted by a mentor. Awaiting answer...',
+        ANSWERED:
+          'Your question has been answered by a mentor. Please accept or reject the answer.',
+        RESOLVED: 'Your question has been resolved successfully.',
       };
 
       this.setState({
@@ -265,27 +274,31 @@ class App extends Component<
     const { status, question_id } = message;
 
     if (Object.keys(AnswerStatusTypes).includes(status)) {
-      const text = status === AnswerStatusTypes.PASSED ?
-        'One of your answers has been declined.' : 'One of your answers has been accepted.';
+      const text =
+        status === AnswerStatusTypes.PASSED
+          ? 'One of your answers has been declined.'
+          : 'One of your answers has been accepted.';
       console.log(status, AnswerStatusTypes.PASSED);
       this.setState({
         snackbarQuestionId: question_id,
         snackbarOpen: true,
-        snackbarText: text
-      })
+        snackbarText: text,
+      });
     } else {
       const questionStatusText: { [key in ResultStatusTypes]: string } = {
-        'NOT_SUBMITTED': 'This should never show up!',
-        'SUBMITTED': 'Your question has been submitted. Should never show up!',
-        'ACCEPTED': 'You have been assigned to a question. Good luck!',
-        'ANSWERED': 'You have submitted your answer to a question. Probably don\'t need to show this.',
-        'RESOLVED': 'One of your questions has been accepted. This is from the question side, can probably remove'
+        NOT_SUBMITTED: 'This should never show up!',
+        SUBMITTED: 'Your question has been submitted. Should never show up!',
+        ACCEPTED: 'You have been assigned to a question. Good luck!',
+        ANSWERED:
+          "You have submitted your answer to a question. Probably don't need to show this.",
+        RESOLVED:
+          'One of your questions has been accepted. This is from the question side, can probably remove',
       };
       this.setState({
         snackbarQuestionId: question_id,
         snackbarOpen: true,
         snackbarText: questionStatusText[status],
-      }, () => this.togglePn());
+      });
     }
   };
 
@@ -309,7 +322,16 @@ class App extends Component<
   };
 
   public render() {
-    const { answers, navBarAnchorEl, loading, snackbarOpen, snackbarQuestionId, snackbarText, questions, pn_toggle, user } = this.state;
+    const {
+      answers,
+      navBarAnchorEl,
+      loading,
+      snackbarOpen,
+      snackbarQuestionId,
+      snackbarText,
+      questions,
+      user,
+    } = this.state;
     const {
       classes,
       location,
@@ -326,82 +348,95 @@ class App extends Component<
             <CircularProgress className={classes.loading} size={96} />
           </div>
         ) : (
-            <>
-              <NavBar
+          <>
+            <NavBar
+              isTransparent={isTransparent}
+              toggleTheme={toggleTheme}
+              theme={themeType}
+            >
+              {user ? (
+                (user as IUser).is_mentor ? (
+                  <>
+                    <NavBarMentorStatus />
+                    <NavBarListAnswers unread={0} />
+                    <NavBarListQuestions
+                      unread={questions.filter((q) => q.is_dirty).length}
+                    />
+                  </>
+                ) : (
+                  <>
+                    <NavBarListQuestions
+                      unread={questions.filter((q) => q.is_dirty).length}
+                    />
+                    <NavBarMentorSignUp />
+                  </>
+                )
+              ) : null}
+              <NavBarAccount
+                anchorEl={navBarAnchorEl}
+                handleClick={this.navBarHandleClick}
+                handleClose={this.navBarHandleClose}
+                handleSignOut={this.handleSignOut}
                 isTransparent={isTransparent}
-                toggleTheme={toggleTheme}
                 theme={themeType}
-              >
-                {user ? (
-                  (user as IUser).is_mentor ? (
-                    <>
-                      <NavBarMentorStatus pnToggle={pn_toggle} />
-                      <NavBarListAnswers unread={0} />
-                      <NavBarListQuestions unread={questions.filter(q => q.is_dirty).length} />
-                    </>
-                  ) : (
-                      <>
-                        <NavBarListQuestions unread={questions.filter(q => q.is_dirty).length} />
-                        <NavBarMentorSignUp />
-                      </>
-                    )
-                ) : null}
-                <NavBarAccount
-                  anchorEl={navBarAnchorEl}
-                  handleClick={this.navBarHandleClick}
-                  handleClose={this.navBarHandleClose}
-                  handleSignOut={this.handleSignOut}
-                  isTransparent={isTransparent}
-                  theme={themeType}
-                  user={user}
-                />
-              </NavBar>
-              <MainContent
                 user={user}
-                userSettings={userSettings}
-                handleSignIn={this.handleSignIn}
-                setTimeZone={setTimeZone}
-                toggleTheme={toggleTheme}
-                editUser={this.editUser}
-                questions={questions}
-                answers={answers}
-                addQuestion={this.addQuestion}
-                setQuestions={this.setQuestions}
-                setAnswers={this.setAnswers}
               />
-              <Snackbar
-                anchorOrigin={{
-                  vertical: 'top',
-                  horizontal: 'center'
-                }}
-                open={snackbarOpen}
-                autoHideDuration={6000}
-                onClose={this.handleSnackbarClose}
-              >
-                <SnackbarContent
-                  className={classes.snackbarContent}
-                  message={
-                    <span id="client-snackbar" className={classes.snackbarMessage}>
-                      🐚 {snackbarText}
-                    </span>
-                  }
-                  action={[
-                    <Link key={snackbarQuestionId} to={`/results/${snackbarQuestionId}`} style={{ textDecoration: 'none' }}>
-                      <Button color='primary' variant='text' size='small'>Go To Question</Button>
-                    </Link>,
-                    <IconButton
-                      key='close'
-                      color='inherit'
-                      onClick={this.handleSnackbarClose}
-                    >
-                      <Close />
-                    </IconButton>
-                  ]}
-                />
-              </Snackbar>
-              <FooterContainer theme={themeType} toggleTheme={toggleTheme} />
-            </>
-          )}
+            </NavBar>
+            <MainContent
+              user={user}
+              userSettings={userSettings}
+              handleSignIn={this.handleSignIn}
+              setTimeZone={setTimeZone}
+              toggleTheme={toggleTheme}
+              editUser={this.editUser}
+              questions={questions}
+              answers={answers}
+              addQuestion={this.addQuestion}
+              setQuestions={this.setQuestions}
+              setAnswers={this.setAnswers}
+            />
+            <Snackbar
+              anchorOrigin={{
+                vertical: 'top',
+                horizontal: 'center',
+              }}
+              open={snackbarOpen}
+              autoHideDuration={6000}
+              onClose={this.handleSnackbarClose}
+            >
+              <SnackbarContent
+                className={classes.snackbarContent}
+                message={
+                  <span
+                    id="client-snackbar"
+                    className={classes.snackbarMessage}
+                  >
+                    🐚 {snackbarText}
+                  </span>
+                }
+                action={[
+                  <Link
+                    key={snackbarQuestionId}
+                    to={`/results/${snackbarQuestionId}`}
+                    style={{ textDecoration: 'none' }}
+                  >
+                    <Button color="primary" variant="text" size="small">
+                      Go To Question
+                    </Button>
+                  </Link>,
+                  <IconButton
+                    key="close"
+                    color="inherit"
+                    onClick={this.handleSnackbarClose}
+                  >
+                    <Close />
+                  </IconButton>,
+                ]}
+              />
+            </Snackbar>
+            <FooterContainer theme={themeType} toggleTheme={toggleTheme} />
+          </>
+        )}
       </div>
     );
   }

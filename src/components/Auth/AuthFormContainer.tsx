@@ -85,9 +85,14 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
     borderStyle: 'solid',
     borderColor: theme.palette.primary.main,
     borderRadius: '10px',
-    paddingTop: theme.spacing.unit * 3,
-    paddingLeft: theme.spacing.unit * 3,
-    paddingRight: theme.spacing.unit * 3,
+    paddingTop: theme.spacing.unit,
+    paddingLeft: theme.spacing.unit,
+    paddingRight: theme.spacing.unit,
+    [theme.breakpoints.up('sm')]: {
+      paddingTop: theme.spacing.unit * 3,
+      paddingLeft: theme.spacing.unit * 3,
+      paddingRight: theme.spacing.unit * 3,
+    },
   },
   authForm: {
     width: '100%',
@@ -98,9 +103,16 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
     marginLeft: 'auto',
     marginRight: 'auto',
     padding: theme.spacing.unit,
+    '& > span': {
+      [theme.breakpoints.only('xs')]: {
+        fontSize: '10px !important'
+      }
+    }
   },
   formControl: {
-    marginBottom: theme.spacing.unit * 2,
+    [theme.breakpoints.up('sm')]: {
+      marginBottom: theme.spacing.unit * 2,
+    }
   },
   forgotPassword: {
     '&:hover': {

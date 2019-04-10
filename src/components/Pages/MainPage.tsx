@@ -26,7 +26,7 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
   root: {
     width: '100%',
     marginTop: '-90px',
-    display: 'flex',
+    display: 'flex'
   },
 });
 

@@ -34,8 +34,8 @@ export interface IProfileContainerState {
 
 const styles: StyleRulesCallback<any> = (theme: Theme) => ({
   profileAvatarInputContainer: {
-    height: '80px',
-    width: '80px',
+    height: '48px',
+    width: '48px',
     borderRadius: '5px',
     [theme.breakpoints.up('sm')]: {
       height: '95px',
@@ -83,6 +83,16 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
     marginLeft: theme.spacing.unit * 2,
     marginRight: 'auto',
     flexDirection: 'column',
+    '& > h3': {
+      [theme.breakpoints.only('xs')]: {
+        fontSize: '1.8rem'
+      },
+    },
+    '& > h6': {
+      [theme.breakpoints.only('xs')]: {
+        fontSize: '1.2rem'
+      },
+    },
   },
 });
 
@@ -207,14 +217,14 @@ class ProfileContainer extends React.Component<
               </div>
             </div>
           </Grid>
-          <Grid item={true} xs={4} md={2}>
+          <Grid item={true} xs={12} md={2}>
             <ProfileTabList
               currentTab={currentTab}
               handleClick={this.changeCurrentTab}
               tabs={tabs}
             />
           </Grid>
-          <Grid item={true} xs={8} md={10}>
+          <Grid item={true} xs={12} md={10}>
             <ProfileContent
               currentTab={currentTab}
               handleFinishLoading={this.handleFinishLoading}

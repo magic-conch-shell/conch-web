@@ -3,26 +3,19 @@ import * as React from 'react';
 import {
   Button,
   Checkbox,
-  FormControl,
   FormControlLabel,
   Grid,
-  Input,
-  InputLabel,
-  Paper,
   StyleRulesCallback,
   Theme,
   WithStyles,
   withStyles,
 } from '@material-ui/core';
 
-import Downshift from 'downshift';
 import { ISettings } from '../../../interfaces/Settings';
 import { ITag } from '../../../interfaces/Tag';
 import { IUser } from '../../../interfaces/User';
 import MentorRegistration from '../../Dialog/MentorRegistration';
 import { ThemeTypes } from '../../../themes/mainTheme';
-import classnames from 'classnames';
-import moment from 'moment-timezone';
 
 export interface ISettingsProps extends WithStyles<typeof styles> {
   editUser: (user: IUser) => void;
@@ -87,7 +80,7 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
   },
 });
 
-const TIMEZONES = moment.tz.names();
+// const TIMEZONES = moment.tz.names();
 
 class Settings extends React.Component<ISettingsProps, ISettingsState> {
   public state = {
@@ -111,17 +104,6 @@ class Settings extends React.Component<ISettingsProps, ISettingsState> {
   public handleTextChange = (ev: any) => {
     // @ts-ignore
     this.setState({ [ev.target.id as string]: ev.target.value });
-  };
-
-  public _changeNickname = (ev: any) => {
-    if (ev) {
-      ev.preventDefault();
-    }
-    const { nicknameText } = this.state;
-    const { editUser, user } = this.props;
-    const newUser = { ...user };
-    newUser.nickname = nicknameText;
-    editUser(newUser);
   };
 
   public _changePassword = (ev: any) => {
@@ -153,7 +135,6 @@ class Settings extends React.Component<ISettingsProps, ISettingsState> {
 
   public render() {
     const {
-      nicknameText,
       mentorDialogOpen,
     } = this.state;
     const { classes, editUser, tags, toggleTheme, user, userSettings } = this.props;
@@ -166,8 +147,8 @@ class Settings extends React.Component<ISettingsProps, ISettingsState> {
           tags={tags}
           user={user}
         />
-        <Grid container={true} spacing={24} className={classes.root}>
-          <Grid item={true} xs={6}>
+        <Grid container={true} spacing={8} className={classes.root}>
+          <Grid item={true} xs={10} sm={6} style={{ paddingLeft: '12px' }}>
             <FormControlLabel
               control={
                 <Checkbox
@@ -179,7 +160,7 @@ class Settings extends React.Component<ISettingsProps, ISettingsState> {
               label="Dark Mode"
             />
           </Grid>
-          <Grid item={true} xs={6}>
+          {/* <Grid item={true} xs={12} sm={6}>
             <label id="select-timezone-label">Timezone</label>
             <Downshift
               id="downshift-select-timezone"
@@ -241,21 +222,7 @@ class Settings extends React.Component<ISettingsProps, ISettingsState> {
                 );
               }}
             </Downshift>
-          </Grid>
-          <Grid item={true} xs={6}>
-            <form onSubmit={this._changeNickname}>
-              <FormControl className={classes.formControl}>
-                <InputLabel htmlFor="nicknameText">Change Nickname</InputLabel>
-                <Input
-                  id="nicknameText"
-                  value={nicknameText}
-                  type="text"
-                  onChange={this.handleTextChange}
-                />
-              </FormControl>
-              <button type="submit" style={{ display: 'none' }} />
-            </form>
-          </Grid>
+          </Grid> */}
           {/* <Grid item={true} xs={6}>
             <form
               style={{ display: 'flex', flexWrap: 'wrap' }}
@@ -293,8 +260,8 @@ class Settings extends React.Component<ISettingsProps, ISettingsState> {
             </form>
           </Grid> */}
           {!user.is_mentor &&
-            <Grid item={true} xs={6}>
-              <Button onClick={this.openMentorDialog}>Become A Mentor</Button>
+            <Grid item={true} xs={12} sm={6}>
+              <Button fullWidth={true} color='primary' variant='contained' onClick={this.openMentorDialog}>Become A Mentor</Button>
             </Grid>
           }
         </Grid>

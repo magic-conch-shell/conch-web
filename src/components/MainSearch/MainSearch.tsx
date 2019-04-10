@@ -76,6 +76,7 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
   root: {
     width: '100%',
     height: '100%',
+    zindex: 9999
   },
   tagSelect: {
     width: '100%',

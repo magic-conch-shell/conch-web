@@ -8,14 +8,15 @@ import {
   WithStyles,
   withStyles,
 } from '@material-ui/core';
+import { RouteComponentProps, withRouter } from 'react-router';
 
 import Settings from '@material-ui/icons/Settings';
 import axios from 'axios';
 
 enum MentorQueueStatus {
-  NOT_IN_QUEUE,
-  IN_QUEUE,
-  BUSY,
+  NOT_IN_QUEUE = 'NOT_IN_QUEUE',
+  IN_QUEUE = 'IN_QUEUE',
+  BUSY = 'BUSY',
 }
 
 const queueButtonText: { [key in MentorQueueStatus]: string } = {
@@ -31,13 +32,14 @@ const queueButtonClass: { [key in MentorQueueStatus]: string } = {
 };
 
 export interface INavBarMentorStatusProps extends WithStyles<typeof styles> {
-  placeholder?: string;
+  pnToggle: boolean;
 }
 
 export interface INavBarMentorStatusState {
   interval: NodeJS.Timeout | null;
   pending: boolean;
   queueStatus: MentorQueueStatus;
+  questionId: number | null;
   timeInQueue: number;
 }
 
@@ -56,7 +58,8 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
     borderColor: theme.palette.text.primary,
   },
   queueBusy: {
-    backgroundColor: 'red',
+    color: 'red',
+    borderColor: 'red'
   },
   pendingIcon: {
     animationName: '$spin',
@@ -78,15 +81,43 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
 });
 
 class NavBarMentorStatus extends React.Component<
-  INavBarMentorStatusProps,
+  RouteComponentProps<any> & INavBarMentorStatusProps,
   INavBarMentorStatusState
   > {
   public state = {
     interval: null,
     pending: false,
     queueStatus: MentorQueueStatus.NOT_IN_QUEUE,
+    questionId: null,
     timeInQueue: 0,
   };
+
+  public componentDidMount() {
+    axios({
+      method: 'get',
+      url: '/api/join_queue'
+    })
+      .then((result) => {
+        const { data } = result;
+        const { question_id, status } = data;
+        if (status === MentorQueueStatus.BUSY) {
+          this.setState({ questionId: question_id }, () => this.setStatus(status));
+        } else {
+          this.setStatus(status);
+        }
+      })
+      .catch((err) => console.log(err));
+  };
+
+  public setStatus = (status: MentorQueueStatus) => {
+    if (status === 'IN_QUEUE') {
+      this.setToInQueue();
+    } else if (status === 'NOT_IN_QUEUE') {
+      this.setToNotInQueue();
+    } else {
+      this.setToBusy();
+    }
+  }
 
   public startTimer = () => {
     const interval = setInterval(
@@ -126,32 +157,35 @@ class NavBarMentorStatus extends React.Component<
     );
   };
 
-  public setQueueStatus = (status: MentorQueueStatus) => {
-    this.setState({ pending: true }, () => {
-      axios({
-        method: 'post',
-        url: '/api/join_queue',
-      })
-        .then(() => {
-          const setStatusMap: { [key in MentorQueueStatus]: () => void } = {
-            [MentorQueueStatus.IN_QUEUE]: this.setToInQueue,
-            [MentorQueueStatus.NOT_IN_QUEUE]: this.setToNotInQueue,
-            [MentorQueueStatus.BUSY]: this.setToBusy,
-          };
-          setStatusMap[status]();
+  public toggleQueueStatus = () => {
+    const { queueStatus, questionId } = this.state;
+    const { history } = this.props;
+    if (queueStatus === MentorQueueStatus.BUSY) {
+      history.push(`/results/${questionId}`);
+    } else {
+      this.setState({ pending: true }, () => {
+        axios({
+          method: 'post',
+          url: '/api/join_queue',
         })
-        .catch((err: any) => console.log(err))
-        .finally(() => this.setState({ pending: false }));
-    });
+          .then((result) => {
+            const { data } = result;
+            const { question_id, status } = data;
+            if (status === MentorQueueStatus.BUSY) {
+              this.setState({ questionId: question_id }, () => this.setStatus(status));
+            } else {
+              this.setStatus(status);
+            }
+          })
+          .catch((err: any) => console.log(err))
+          .finally(() => this.setState({ pending: false }));
+      });
+    }
   };
 
   public render() {
     const { pending, queueStatus, timeInQueue } = this.state;
     const { classes } = this.props;
-    const nextStatus =
-      queueStatus === MentorQueueStatus.NOT_IN_QUEUE
-        ? MentorQueueStatus.IN_QUEUE
-        : MentorQueueStatus.NOT_IN_QUEUE;
     return (
       <>
         {queueStatus !== MentorQueueStatus.NOT_IN_QUEUE &&
@@ -166,7 +200,7 @@ class NavBarMentorStatus extends React.Component<
           </Button>
         ) : (
             <Button
-              onClick={() => this.setQueueStatus(nextStatus)}
+              onClick={this.toggleQueueStatus}
               className={classes[queueButtonClass[queueStatus]]}
               variant='outlined'
             >
@@ -178,4 +212,4 @@ class NavBarMentorStatus extends React.Component<
   }
 }
 
-export default withStyles(styles)(NavBarMentorStatus);
+export default withRouter(withStyles(styles)(NavBarMentorStatus));

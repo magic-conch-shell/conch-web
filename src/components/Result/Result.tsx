@@ -38,10 +38,10 @@ export interface IResultState {
 
 const resultStatusText: { [key in ResultStatusTypes]: string } = {
   'NOT_SUBMITTED': 'Not submitted',
-  'SUBMITTED': 'Connecting with a Mentor',
+  'SUBMITTED': 'Connecting with a Mentor...',
   'ACCEPTED': 'A Mentor is currently answering your question',
   'ANSWERED':
-    "Your question has been answered. If you are not satisfied with your answer, add a comment and select 'Resubmit'",
+    "Your question has been answered. If you are not satisfied with your answer, click the red X",
   'RESOLVED': 'Your question has been answered.',
 };
 
@@ -65,7 +65,6 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
     padding: theme.spacing.unit * 2,
     marginTop: 'auto',
     marginBottom: 'auto',
-    width: '100%',
   },
   resultHeader: {
     textAlign: 'center',
@@ -97,10 +96,12 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
     }
   },
   answerAccepted: {
-    color: 'green'
+    color: 'green',
+    marginLeft: 'auto'
   },
   answerRejected: {
-    color: '#dc3545'
+    color: '#dc3545',
+    marginLeft: 'auto'
   }
 });
 
@@ -274,9 +275,6 @@ class Result extends React.Component<IResultProps, IResultState> {
         ) : (
             <>
               <div className={classes.resultHeader}>
-                <Typography variant="h5" style={{ fontVariant: 'small-caps' }}>
-                  Your Question has been submitted...
-              </Typography>
                 <Typography variant="caption">
                   Status: {resultStatusText[result.question_status.status]}
                 </Typography>
@@ -321,43 +319,49 @@ class Result extends React.Component<IResultProps, IResultState> {
                   <Typography variant='caption'>
                     <strong>Answers:</strong>
                   </Typography>
-                  {answers.map((ans, index) => {
-                    return (
-                      <div key={index} className={classes.answer}>
-                        <InputContainer>
-                          <TextareaAutosize
-                            readOnly={true}
-                            value={ans.content}
-                            className={classes.input}
-                          />
-                        </InputContainer>
-                        <div className={classes.answerActionsContainer}>
-                          {index === 0 ? (
-                            ans.selected === false ? (
-                              <div className={classes.answerActions}>
-                                <Tooltip title='Accept Answer'>
-                                  <IconButton color='primary' onClick={() => this._handleAcceptAnswer(ans.id)}>
-                                    <Check />
-                                  </IconButton>
-                                </Tooltip>
-                                <Tooltip title='Reject Answer' onClick={() => this._handleRejectAnswer(ans.id)}>
-                                  <IconButton className={classes.rejectAction}>
-                                    <Close />
-                                  </IconButton>
-                                </Tooltip>
-                              </div>
+                  {answers
+                    .sort((a, b) => {
+                      const aDate = new Date(a.created_at);
+                      const bDate = new Date(b.created_at);
+                      return aDate > bDate ? -1 : 1;
+                    })
+                    .map((ans, index) => {
+                      return (
+                        <div key={index} className={classes.answer}>
+                          <InputContainer>
+                            <TextareaAutosize
+                              readOnly={true}
+                              value={ans.content}
+                              className={classes.input}
+                            />
+                          </InputContainer>
+                          <div className={classes.answerActionsContainer}>
+                            {index === 0 ? (
+                              ans.selected === false ? (
+                                <div className={classes.answerActions}>
+                                  <Tooltip title='Accept Answer'>
+                                    <IconButton color='primary' onClick={() => this._handleAcceptAnswer(ans.id)}>
+                                      <Check />
+                                    </IconButton>
+                                  </Tooltip>
+                                  <Tooltip title='Reject Answer' onClick={() => this._handleRejectAnswer(ans.id)}>
+                                    <IconButton className={classes.rejectAction}>
+                                      <Close />
+                                    </IconButton>
+                                  </Tooltip>
+                                </div>
+                              ) : (
+                                  <Typography variant='caption' className={classes.answerAccepted}><strong>Status: Accepted</strong></Typography>
+                                )
                             ) : (
-                                <Typography variant='caption' className={classes.answerAccepted}><strong>Status: Accepted</strong></Typography>
-                              )
-                          ) : (
-                              <Typography variant='caption' className={classes.answerRejected}><strong>Status: Rejected</strong></Typography>
-                            )}
+                                <Typography variant='caption' className={classes.answerRejected}><strong>Status: Rejected</strong></Typography>
+                              )}
 
+                          </div>
+                          {index !== answers.length - 1 && <hr style={{ marginTop: '5px', marginBottom: '5px' }} />}
                         </div>
-                        {index !== answers.length - 1 && <hr />}
-                      </div>
-                    )
-                  })}
+                      )
+                    })}
                 </div>
               }
             </>

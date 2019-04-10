@@ -29,7 +29,9 @@ export interface IHomeState {
 
 const styles: StyleRulesCallback<any> = (theme: Theme) => ({
   root: {
-    padding: theme.spacing.unit * 2,
+    [theme.breakpoints.up('sm')]: {
+      padding: theme.spacing.unit * 2,
+    }
   },
   contentContainer: {
     color: theme.palette.text.primary,
@@ -65,8 +67,8 @@ class Home extends React.Component<
     const { classes, questions, tags, user } = this.props;
     return (
       <div className={classes.root}>
-        <Grid container={true} spacing={8} className={classes.contentContainer}>
-          <Grid item={true} xs={12} sm={8}>
+        <Grid container={true} className={classes.contentContainer}>
+          <Grid item={true} xs={12} sm={12}>
             <QuestionList questions={questions} tags={tags} userId={user.id} />
           </Grid>
         </Grid>

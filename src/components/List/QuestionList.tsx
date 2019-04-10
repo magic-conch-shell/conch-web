@@ -37,6 +37,12 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
       ? lighten(theme.palette.primary.main, 0.75)
       : darken(theme.palette.primary.main, 0.75),
   },
+  paper: {
+    overflowX: 'auto',
+    [theme.breakpoints.only('xs')]: {
+      height: '300px'
+    }
+  },
   loading: {
     margin: 'auto',
   },
@@ -46,22 +52,27 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
     height: '25%',
     margin: 'auto',
   },
-  table: {
-    overflowY: 'scroll',
-  },
   tableRow: {
     cursor: 'pointer',
-  },
-  tableHeader: {
-    position: 'sticky',
-    boxShadow:
-      '0px 2px 4px -1px rgba(0,0,0,0.2), 0px 4px 5px 0px rgba(0,0,0,0.14), 0px 1px 10px 0px rgba(0,0,0,0.12)',
-  },
-  tableBody: {
-    overflowY: 'scroll',
+    '& > th,td': {
+      [theme.breakpoints.up('sm')]: {
+        fontSize: '10px',
+      },
+      [theme.breakpoints.up('md')]: {
+        fontSize: '12px',
+        padding: theme.spacing.unit * 2
+      },
+      fontSize: '8px',
+      padding: theme.spacing.unit
+    }
   },
   chip: {
     backgroundColor: 'rgba(0, 0, 0, 0)',
+    [theme.breakpoints.only('xs')]: {
+      fontSize: '8px',
+      margin: 0,
+      padding: 0
+    },
     borderColor: theme.palette.primary.main,
     borderWidth: '1px',
     borderStyle: 'solid',
@@ -101,7 +112,7 @@ class QuestionList extends React.Component<
       <Paper className={classes.paper} elevation={4}>
         <Table className={classes.table} padding="dense">
           <TableHead className={classes.tableHeader}>
-            <TableRow>
+            <TableRow className={classes.tableRow}>
               <TableCell>Date</TableCell>
               <TableCell>Title</TableCell>
               <TableCell>Question</TableCell>

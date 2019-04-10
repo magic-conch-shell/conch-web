@@ -31,6 +31,10 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
   avatar: {
     margin: 'auto',
     borderRadius: '5px',
+    [theme.breakpoints.only('xs')]: {
+      height: '32px',
+      width: '32px'
+    }
   },
   accountMenuButtonContainer: {
     display: 'flex',
@@ -60,7 +64,10 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
     marginTop: '60px',
   },
   spacing: {
-    marginLeft: theme.spacing.unit * 2,
+    marginLeft: theme.spacing.unit,
+    [theme.breakpoints.up('sm')]: {
+      marginLeft: theme.spacing.unit * 2,
+    }
   },
   userAccount: {
     display: 'flex',

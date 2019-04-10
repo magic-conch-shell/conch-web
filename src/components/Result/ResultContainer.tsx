@@ -113,7 +113,7 @@ class ResultContainer extends React.Component<
     const { answers, visible, question } = this.state;
     const { classes, questionId, user, tags } = this.props;
     return (
-      <Grid item={true} xs={12} sm={6} md={4} lg={4} className={classes.root}>
+      <Grid item={true} xs={11} sm={6} md={4} lg={4} className={classes.root}>
         {questionId ? (
           <OpacityContainer
             className={classnames(classes.container, classes.vCenter)}

@@ -24,6 +24,7 @@ import { Link } from 'react-router-dom';
 import MainContent from '../MainContent/MainContent';
 import NavBar from '../NavBar/NavBar';
 import NavBarAccount from '../NavBar/NavBarAccount';
+import NavBarListAnswers from '../NavBar/NavBarListAnswers';
 import NavBarListQuestions from '../NavBar/NavBarListQuestions';
 import NavBarMentorSignUp from '../NavBar/NavBarMentorSignUp';
 import NavBarMentorStatus from '../NavBar/NavBarMentorStatus';
@@ -35,6 +36,7 @@ export interface IAppState {
   loading: boolean;
   navBarAnchorEl: HTMLElement | undefined;
   pn_messages: { [index: string]: IPNMessage[] };
+  pn_toggle: boolean;
   questions: IQuestion[];
   snackbarQuestionId: number | undefined;
   snackbarOpen: boolean;
@@ -76,6 +78,7 @@ class App extends Component<
       answers: [] as IAnswer[],
       pn_messages: {},
       loading: true,
+      pn_toggle: false,
       snackbarQuestionId: undefined,
       snackbarOpen: false,
       snackbarText: 'placeholder text',
@@ -158,6 +161,10 @@ class App extends Component<
         }
       });
     });
+  };
+
+  public togglePn = () => {
+    this.setState(prevState => ({ pn_toggle: !prevState.pn_toggle }));
   };
 
   public getUserData = (callback: () => void) => {
@@ -278,7 +285,7 @@ class App extends Component<
         snackbarQuestionId: question_id,
         snackbarOpen: true,
         snackbarText: questionStatusText[status],
-      });
+      }, () => this.togglePn());
     }
   };
 
@@ -302,7 +309,7 @@ class App extends Component<
   };
 
   public render() {
-    const { answers, navBarAnchorEl, loading, snackbarOpen, snackbarQuestionId, snackbarText, questions, user } = this.state;
+    const { answers, navBarAnchorEl, loading, snackbarOpen, snackbarQuestionId, snackbarText, questions, pn_toggle, user } = this.state;
     const {
       classes,
       location,
@@ -327,7 +334,11 @@ class App extends Component<
               >
                 {user ? (
                   (user as IUser).is_mentor ? (
-                    <NavBarMentorStatus />
+                    <>
+                      <NavBarMentorStatus pnToggle={pn_toggle} />
+                      <NavBarListAnswers unread={0} />
+                      <NavBarListQuestions unread={questions.filter(q => q.is_dirty).length} />
+                    </>
                   ) : (
                       <>
                         <NavBarListQuestions unread={questions.filter(q => q.is_dirty).length} />

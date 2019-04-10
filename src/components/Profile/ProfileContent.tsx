@@ -61,7 +61,9 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
   },
   contentContainer: {
     color: theme.palette.text.primary,
-    padding: theme.spacing.unit * 2,
+    [theme.breakpoints.up('sm')]: {
+      padding: theme.spacing.unit * 2,
+    }
   },
 });
 class ProfileContent extends React.Component<

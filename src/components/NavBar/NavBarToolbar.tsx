@@ -1,14 +1,7 @@
 import * as React from 'react';
 
-import {
-  StyleRulesCallback,
-  Theme,
-  Toolbar,
-  WithStyles,
-  withStyles,
-} from '@material-ui/core';
-
-import { Link } from 'react-router-dom';
+import { Link, RouteComponentProps, withRouter } from 'react-router-dom';
+import { StyleRulesCallback, Theme, Toolbar, WithStyles, withStyles } from '@material-ui/core';
 
 export interface INavBarToolbarProps extends WithStyles<typeof styles> {
   logoColor: string;
@@ -22,11 +15,33 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
   root: {},
   appBarLogo: {
     height: '64px',
+    [theme.breakpoints.only('xs')]: {
+      height: '42px'
+    },
   },
   toolbar: {
     display: 'flex',
     marginTop: 'auto',
     marginBottom: 'auto'
+  },
+  toolbarAuth: {
+    display: 'flex',
+    marginTop: 'auto',
+    marginBottom: 'auto',
+    '& > a': {
+      [theme.breakpoints.only('xs')]: {
+        width: '100%',
+        display: 'flex',
+        marginTop: '50px'
+      }
+    }
+  },
+  appBarLogoAuthPage: {
+    height: '64px',
+    [theme.breakpoints.only('xs')]: {
+      height: '80px',
+      margin: 'auto',
+    }
   },
   marginLeftAuto: {
     marginLeft: 'auto',
@@ -35,16 +50,16 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
 });
 
 class NavBarToolbar extends React.Component<
-  INavBarToolbarProps,
+  RouteComponentProps<any> & INavBarToolbarProps,
   INavBarToolbarState
   > {
   public render() {
-    const { classes, logoColor } = this.props;
+    const { classes, location, logoColor } = this.props;
     return (
-      <Toolbar className={classes.toolbar}>
+      <Toolbar className={location.pathname === '/login' ? classes.toolbarAuth : classes.toolbar}>
         <Link to="/">
           <img
-            className={classes.appBarLogo}
+            className={location.pathname === '/login' ? classes.appBarLogoAuthPage : classes.appBarLogo}
             src={`https://s3.ca-central-1.amazonaws.com/conch-resources/conch_logo_${logoColor}.png`}
           />
         </Link>
@@ -54,4 +69,4 @@ class NavBarToolbar extends React.Component<
   }
 }
 
-export default withStyles(styles)(NavBarToolbar);
+export default withRouter(withStyles(styles)(NavBarToolbar));

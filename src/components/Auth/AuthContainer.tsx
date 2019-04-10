@@ -1,11 +1,13 @@
+import * as React from 'react';
+
 import {
+  Grid,
   StyleRulesCallback,
   Theme,
   WithStyles,
   withStyles,
-  Grid,
 } from '@material-ui/core';
-import * as React from 'react';
+
 import AuthFormContainer from './AuthFormContainer';
 import { IUser } from '../../interfaces/User';
 
@@ -29,11 +31,11 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
 class AuthContainer extends React.Component<
   IAuthContainerProps,
   IAuthContainerState
-> {
+  > {
   public render() {
     const { classes, handleSignIn } = this.props;
     return (
-      <Grid item={true} xs={10} sm={6} md={4} lg={4} className={classes.root}>
+      <Grid item={true} xs={11} sm={6} md={4} lg={4} className={classes.root}>
         <AuthFormContainer handleSignIn={handleSignIn} />
       </Grid>
     );

@@ -1,11 +1,13 @@
+import * as React from 'react';
+
 import {
+  Grid,
   StyleRulesCallback,
   Theme,
   WithStyles,
   withStyles,
-  Grid,
 } from '@material-ui/core';
-import * as React from 'react';
+
 import AuthContainer from '../Auth/AuthContainer';
 import { IUser } from '../../interfaces/User';
 
@@ -23,6 +25,7 @@ const styles: StyleRulesCallback<any> = (theme: Theme) => ({
     width: '100%',
     marginTop: '-90px',
     display: 'flex',
+    zIndex: 9999
   },
 });
 
